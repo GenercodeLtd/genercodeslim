@@ -1,4 +1,12 @@
 {
+    "name": "genercodeltd/genercodeslim",
+    "description": "A genercode wrapper for GenerCodeOrm and Slim",
+    "authors": [
+        {
+            "name": "Suzanne Clifford",
+            "email": "suzanne.clifford@presstojam.com"
+        }
+    ],
     "require": {
         "genercodeltd/genercodeorm": "^2.0",
         "slim/slim": "^4.10",
@@ -14,5 +22,6 @@
         "psr-4" : {
             "GenerCodeSlim\\" : "app/"
         }
-    }
+    },
+    "license" : "Apache-2.0"
 }
