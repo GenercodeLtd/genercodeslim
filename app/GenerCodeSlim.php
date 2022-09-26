@@ -254,7 +254,8 @@ class GenerCodeSlim {
         $this->app->get("/asset/{model}/{field}/{id}", function($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $data = $modelController->getAsset($args["model"], $args["field"], $args["id"]);
-            return $response->getBody()->write($data);
+            $response->getBody()->write($data);
+            return $response;
         });
 
 
