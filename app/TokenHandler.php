@@ -123,6 +123,27 @@ class TokenHandler
         //}
     }
 
+    public function loginFromToken($token, $response, $profile) {
+        $payload = $this->decode($token);
+        if ($payload["u"] == $profile) {
+            $cookie_expires = time() + 86400; //24 hours update
+            $cookies = [];
+
+            $access_token = $this->encode(["u"=>$payload->u, "i"=>$payload->i], $this->auth_minutes);
+            $refresh_token = $this->encode(["u"=>$payload->u, "i"=>$payload->i], $this->refresh_minutes);
+
+            $cookies[] = $this->createCookie("api-auth", $access_token, $cookie_expires);
+            $cookies[] = $this->createCookie("api-refresh", $refresh_token, $cookie_expires);
+
+            $set = new \Dflydev\FigCookies\SetCookies($cookies);
+            $response = $set->renderIntoSetCookieHeader($response);
+            $response->body()->write(json_encode(true));
+        } else {
+            $response->body()->write(json_encode(false));
+        }
+        return $response;
+    }
+
 
     public function logout($response)
     {

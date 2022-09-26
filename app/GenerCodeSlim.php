@@ -337,6 +337,14 @@ class GenerCodeSlim {
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
+
+            $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {
+                $params = new Fluent($request->getParsedBody());
+                $tokenHandler = $this->get(TokenHandler::class);
+                $tokenHandler->setConfigs($this->config->token);
+                return $tokenHandler->loginFromToken($params["token"], $response, $args["name"])
+                ->withHeader('Content-Type', 'application/json');
+            });
     
     
             $group->post('/anon/{name}', function (Request $request, Response $response, $args) {
