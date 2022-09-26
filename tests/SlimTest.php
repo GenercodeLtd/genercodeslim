@@ -3,10 +3,12 @@ use PHPUnit\Framework\TestCase;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Container\Container as Container;
 use \Slim\Psr7\Environment as Environment;
+use \Illuminate\Support\Fluent;
+
 //require(__DIR__ . "/../app/GenerCodeSlim.php");
 require(__DIR__ . "/../vendor/autoload.php");
 
-\GenerCodeOrm\regAutoload("PressToJam", __DIR__ . "/../../ptjmanager/repos/ptj");
+\GenerCodeOrm\regAutoload("PressToJam", __DIR__ . "/../../genercodeltd/repos/ptj");
 
 final class SlimTest extends TestCase
 {
@@ -35,6 +37,7 @@ final class SlimTest extends TestCase
             'prefix'    => '',
         ]);
         $capsule->setAsGlobal();*/
+
         $configs = [
             'driver'    => 'mysql',
             'host'      => 'localhost',
@@ -56,6 +59,7 @@ final class SlimTest extends TestCase
 
     
         $this->app = new GenerCodeSlim\GenerCodeSlim();
+        $configs = $this->app->loadConfigs( __DIR__ . "/../../localapi",  __DIR__ . "/../../localapi/configs.php");
         $this->app->init($configs);
 
         /*
@@ -93,6 +97,29 @@ $container['logger'] = function ($c) {
         var_dump($response->getBody());
 
         $this->assertContains('home', $response->getBody());
+    }
+
+    public function testUpload() {
+
+        $_FILES = ["asseter"=> [
+            "size"=>500,
+            "tmp_name"=>__DIR__ . "/testproject/defaultpdf.pdf",
+            "error"=>0,
+            "name"=>"defaultpdf.pdf"
+        ]];
+
+        
+        $factory = new Slim\Psr7\Factory\RequestFactory();
+        $request = $factory->createRequest('PUT', '/data/tester', [], ["api-auth"=>"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE2NjQxOTAwOTgsImlzcyI6InNsaW0ubG9jYWxob3N0IiwibmJmIjoxNjY0MTkwMDk4LCJleHAiOjE2NjkzNzQwOTgsInUiOiJhY2NvdW50cyIsImkiOjF9.fL9Nht78FBXE9lSL_p3uTsExPYWecT6hL0E08PjP65KjFL2V6sAD07Gokx_wT_RUftl4EdGZE5Yil6JIKSqz_Q"]);
+        $request = $request->withParsedBody(["--id"=>2, "stringer"=>"strs", "number"=>5]);
+        $app = $this->app->getApp();
+        try {
+            $response = $app->handle($request);
+        } catch(\Throwable $e) {
+            echo "Message is " . $e->getMessage();
+        }
+
+        var_dump($response->getBody()->getContents());
     }
 
 

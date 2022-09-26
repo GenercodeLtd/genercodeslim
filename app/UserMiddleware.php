@@ -37,6 +37,7 @@ class UserMiddleware {
         $auth = FigRequestCookies::get($request, "api-auth");
         $expired = false;
         //otherwise check if set via cookie
+    
         if ($auth and $auth->getValue()) {
             try {
                 $payload = $this->handler->decode($auth->getValue());
