@@ -34,12 +34,15 @@ class GenerCodeSlim {
         return $this->app;
     }
 
-    function loadConfigs($env_dir, $config_file = __DIR__ . "/Configs.php") {
+    function loadEnvDetails($env_dir) {
         $dotenv = \Dotenv\Dotenv::createImmutable($env_dir);
         $dotenv->load();
 
-        $env = new Fluent($_ENV);
+        return $_ENV;
+    }
 
+    function loadConfigs(array $environment, $config_file = __DIR__ . "/Configs.php") {
+        $env = new Fluent($environment);
         return require($config_file);
     }
 
@@ -69,7 +72,7 @@ class GenerCodeSlim {
     }
 
 
-    function addDependencies() {
+    function addDependencies($hooks_data = []) {
 
         $container = $this->app->getContainer();
         $factory = new ConnectionFactory($container);
@@ -83,6 +86,10 @@ class GenerCodeSlim {
             $token = $app->make(TokenHandler::class);
             $token->setConfigs($app->config->token);
             return new UserMiddleware($app, $app->get("factory"), $token);
+        });
+
+        $container->bind(Hooks::class, function($app) use ($hooks_data) {
+            return new Hooks($hooks_data);
         });
 
         $container->bind(UserMiddleware::class, function($app) {
@@ -112,6 +119,7 @@ class GenerCodeSlim {
 
       
     }
+
 
 
     function errorHandler() {
