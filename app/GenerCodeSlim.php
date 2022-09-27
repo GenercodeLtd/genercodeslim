@@ -77,7 +77,7 @@ class GenerCodeSlim {
         $container = $this->app->getContainer();
         $factory = new ConnectionFactory($container);
         $manager = new DatabaseManager($container, $factory);
-        $container->instance($manager::class, $manager); 
+        $container->instance(DatabaseManager::class, $manager); 
 
         $profileFactory = new \PressToJam\ProfileFactory();
         $container->instance("factory", $profileFactory);
@@ -199,8 +199,15 @@ class GenerCodeSlim {
             $response->getBody()->write(
                 json_encode($payload, JSON_UNESCAPED_UNICODE)
             );
+
+            try {
+                $status = $exception->getCode();
+            } catch(\Exception $e) {
+                $status = 500;
+            }
         
-            return $response->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
+            return $response->withStatus($status)
+            ->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
             ->withHeader('Access-Control-Allow-Headers', implode(",", $container->config->cors['headers']))
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
             ->withHeader('Access-Control-Allow-Credentials', 'true');
