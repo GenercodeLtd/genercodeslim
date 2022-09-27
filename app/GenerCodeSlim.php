@@ -104,6 +104,11 @@ class GenerCodeSlim {
             return new \GenerCodeOrm\Model($dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
         });
 
+        $container->bind(\GenerCodeOrm\Reference::class, function($app) {
+            $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
+            $profile = $app->get(\GenerCodeOrm\Profile::class);
+            return new \GenerCodeOrm\Reference($app, $dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+        });
 
         $container->bind(\GenerCodeOrm\Repository::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
@@ -142,9 +147,9 @@ class GenerCodeSlim {
     function initMiddleware() {
         
         $container = $this->app->getContainer();
-        $this->app->addRoutingMiddleware();
 
         $this->app->addBodyParsingMiddleware();
+        $this->app->addRoutingMiddleware();
 
 
         $this->app->add($this->app->getContainer()->get(UserMiddleware::class));
@@ -275,10 +280,9 @@ class GenerCodeSlim {
         });
 
         
-        $this->app->get("/reference/{model}/{field}", function($request, $response, $args) {
-            $name = $args["model"];
+        $this->app->get("/reference/{model}/{field}[/{id}]", function($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $results = $modelController->reference($args["model"], $args["field"], new Fluent($request->getQueryParams())); 
+            $results = $modelController->reference($args["model"], $args["field"], (isset($args["id"])) ? $args["id"] : 0); 
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
