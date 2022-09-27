@@ -72,7 +72,7 @@ class GenerCodeSlim {
     }
 
 
-    function addDependencies($hooks_data = []) {
+    function addDependencies() {
 
         $container = $this->app->getContainer();
         $factory = new ConnectionFactory($container);
@@ -92,8 +92,10 @@ class GenerCodeSlim {
             return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
         });
 
-        $container->bind(Hooks::class, function($app) use ($hooks_data) {
-            return new Hooks($hooks_data);
+        $container->bind(Hooks::class, function($app) {
+            $hooks = new Hooks($app);
+            if ($app->config->hooks) $hooks->loadHooks($app->config->hooks);
+            return $hooks;
         });
 
         $container->bind(UserMiddleware::class, function($app) {
@@ -165,7 +167,7 @@ class GenerCodeSlim {
             $container = $app->getContainer();
             if ($logger) $logger->error($exception->getMessage());
         
-            $payload = ['error' => $exception->getMessage()];
+            $payload = ['error' => $exception->getMessage(), "file"=>$exception->getFile(), "line"=>$exception->getLine()];
         
             $response = $app->getResponseFactory()->createResponse();
             $response->getBody()->write(
