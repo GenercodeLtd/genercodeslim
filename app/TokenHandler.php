@@ -125,7 +125,7 @@ class TokenHandler
 
     public function loginFromToken($token, $response, $profile) {
         $payload = $this->decode($token);
-        if ($payload["u"] == $profile) {
+        if ($payload->u == $profile) {
             $cookie_expires = time() + 86400; //24 hours update
             $cookies = [];
 
@@ -137,9 +137,9 @@ class TokenHandler
 
             $set = new \Dflydev\FigCookies\SetCookies($cookies);
             $response = $set->renderIntoSetCookieHeader($response);
-            $response->body()->write(json_encode(true));
+            $response->getBody()->write(json_encode(true));
         } else {
-            $response->body()->write(json_encode(false));
+            $response->getBody()->write(json_encode(false));
         }
         return $response;
     }
