@@ -98,6 +98,20 @@ class GenerCodeSlim {
             return $hooks;
         });
 
+        $container->bind(\GenerCodeOrm\Model::class, function($app) {
+            $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
+            $profile = $app->get(\GenerCodeOrm\Profile::class);
+            return new \GenerCodeOrm\Model($dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+        });
+
+
+        $container->bind(\GenerCodeOrm\Repository::class, function($app) {
+            $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
+            $profile = $app->get(\GenerCodeOrm\Profile::class);
+            return new \GenerCodeOrm\Repository($dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+        });
+        
+
         $container->bind(UserMiddleware::class, function($app) {
             return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
         });
