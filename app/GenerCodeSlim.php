@@ -92,8 +92,8 @@ class GenerCodeSlim {
             return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
         });
 
-        $container->bind(Hooks::class, function($app) {
-            $hooks = new Hooks($app);
+        $container->bind(\GenerCodeOrm\Hooks::class, function($app) {
+            $hooks = new \GenerCodeOrm\Hooks($app);
             if ($app->config->hooks) $hooks->loadHooks($app->config->hooks);
             return $hooks;
         });
