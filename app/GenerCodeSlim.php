@@ -82,10 +82,14 @@ class GenerCodeSlim {
         $profileFactory = new \PressToJam\ProfileFactory();
         $container->instance("factory", $profileFactory);
 
-        $container->bind(UserMiddleware::class, function($app) {
-            $token = $app->make(TokenHandler::class);
+        $container->bind(TokenHandler::class, function($app) {
+            $token = new TokenHandler();
             $token->setConfigs($app->config->token);
-            return new UserMiddleware($app, $app->get("factory"), $token);
+            return $token;
+        });
+
+        $container->bind(UserMiddleware::class, function($app) {
+            return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
         });
 
         $container->bind(Hooks::class, function($app) use ($hooks_data) {
@@ -93,9 +97,7 @@ class GenerCodeSlim {
         });
 
         $container->bind(UserMiddleware::class, function($app) {
-            $token = $app->make(TokenHandler::class);
-            $token->setConfigs($app->config->token);
-            return new UserMiddleware($app, $app->get("factory"), $token);
+            return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
         });
 
         $container->bind(\Illuminate\Filesystem\FilesystemManager::class, function($app) {
@@ -118,36 +120,6 @@ class GenerCodeSlim {
         });
 
       
-    }
-
-
-
-    function errorHandler() {
-        $app = $this->app;
-        return function (
-            Request $request,
-            \Throwable $exception,
-            bool $displayErrorDetails,
-            bool $logErrors,
-            bool $logErrorDetails,
-            ?LoggerInterface $logger = null
-        ) use ($app) {
-            $container = $app->getContainer();
-            if ($logger) $logger->error($exception->getMessage());
-        
-            $payload = ['error' => $exception->getMessage()];
-        
-            $response = $app->getResponseFactory()->createResponse();
-            $response->getBody()->write(
-                json_encode($payload, JSON_UNESCAPED_UNICODE)
-            );
-        
-            return $response->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
-            ->withHeader('Access-Control-Allow-Headers', implode(",", $container->config->cors['headers']))
-            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-            ->withHeader('Access-Control-Allow-Credentials', 'true');
-            
-        };
     }
 
 
@@ -205,6 +177,10 @@ class GenerCodeSlim {
             } catch(\Exception $e) {
                 $status = 500;
             }
+
+            $status = (int) $status;
+
+            if ($status < 100 OR $status > 500) $status = 500;
         
             return $response->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
@@ -339,7 +315,6 @@ class GenerCodeSlim {
                 $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
                 $tokenHandler = $this->get(TokenHandler::class);
                 $tokenHandler->setConfigs($this->config->token);
-                $response = $tokenHandler->save($response, $args["name"], $id);
                 $response->getBody()->write(json_encode("success"));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
@@ -348,7 +323,6 @@ class GenerCodeSlim {
             $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {
                 $params = new Fluent($request->getParsedBody());
                 $tokenHandler = $this->get(TokenHandler::class);
-                $tokenHandler->setConfigs($this->config->token);
                 return $tokenHandler->loginFromToken($params["token"], $response, $args["name"])
                 ->withHeader('Content-Type', 'application/json');
             });
@@ -368,7 +342,6 @@ class GenerCodeSlim {
             
             $group->put("/switch-tokens", function (Request $request, Response $response, $args) {
                 $tokenHandler = $this->get(TokenHandler::class);
-                $tokenHandler->setConfigs($this->config->token);
                 $response = $tokenHandler->switchTokens($request, $response);
                 $response->getBody()->write(json_encode("success"));
                 return $response
