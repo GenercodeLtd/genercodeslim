@@ -313,8 +313,8 @@ class GenerCodeSlim {
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
                 $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
-                $tokenHandler = $this->get(TokenHandler::class);
-                $tokenHandler->setConfigs($this->config->token);
+                $tokenHandler = $this->make(TokenHandler::class);
+                $response = $tokenHandler->save($response, $args["name"], $id);
                 $response->getBody()->write(json_encode("success"));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
@@ -322,7 +322,7 @@ class GenerCodeSlim {
 
             $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {
                 $params = new Fluent($request->getParsedBody());
-                $tokenHandler = $this->get(TokenHandler::class);
+                $tokenHandler = $this->make(TokenHandler::class);
                 return $tokenHandler->loginFromToken($params["token"], $response, $args["name"])
                 ->withHeader('Content-Type', 'application/json');
             });
@@ -332,7 +332,7 @@ class GenerCodeSlim {
                 $name = $args['name'];
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
                 $profile = $profileController->ceateAnon($args["name"], new Fluent($request->getParsedBody()));
-                $tokenHandler = $this->get(TokenHandler::class);
+                $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $profile);
                 $response->getBody()->write(json_encode("success"));
                 return $response
