@@ -109,6 +109,7 @@ class GenerCodeSlim {
             return new \GenerCodeOrm\Model($dbmanager, $schema);
         });
 
+
         $container->bind(\GenerCodeOrm\Reference::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
             $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
@@ -354,7 +355,7 @@ class GenerCodeSlim {
             $group->post('/anon/{name}', function (Request $request, Response $response, $args) {
                 $name = $args['name'];
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
-                $id = $profileController->createAnon($args["name"], new Fluent($request->getParsedBody()));
+                $id = $profileController->createAnon($args["name"]);
                 $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $name, $id);
                 $response->getBody()->write(json_encode(["--id"=>$id]));
