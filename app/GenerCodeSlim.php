@@ -98,28 +98,29 @@ class GenerCodeSlim {
             return $hooks;
         });
 
+        $container->bind(\GenerCodeOrm\SchemaRepository::class, function($app) {
+            $profile = $app->get(\GenerCodeOrm\Profile::class);
+            return new \GenerCodeOrm\SchemaRepository($profile->factory);
+        });
+
         $container->bind(\GenerCodeOrm\Model::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
-            $profile = $app->get(\GenerCodeOrm\Profile::class);
-            return new \GenerCodeOrm\Model($dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+            $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
+            return new \GenerCodeOrm\Model($dbmanager, $schema);
         });
 
         $container->bind(\GenerCodeOrm\Reference::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
-            $profile = $app->get(\GenerCodeOrm\Profile::class);
-            return new \GenerCodeOrm\Reference($app, $dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+            $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
+            return new \GenerCodeOrm\Reference($app, $dbmanager, $schema);
         });
 
         $container->bind(\GenerCodeOrm\Repository::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
-            $profile = $app->get(\GenerCodeOrm\Profile::class);
-            return new \GenerCodeOrm\Repository($dbmanager, new \GenerCodeOrm\SchemaRepository($profile->factory));
+            $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
+            return new \GenerCodeOrm\Repository($dbmanager, $schema);
         });
         
-
-        $container->bind(UserMiddleware::class, function($app) {
-            return new UserMiddleware($app, $app->get("factory"), $app->make(TokenHandler::class));
-        });
 
         $container->bind(\Illuminate\Filesystem\FilesystemManager::class, function($app) {
             return new \Illuminate\Filesystem\FilesystemManager($app);
@@ -236,7 +237,7 @@ class GenerCodeSlim {
 
         $this->app->put('/data/{model}/resort', function (Request $request, Response $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $results = $modelController->resort($args["model"], $request->getParsedBody());
+            $results = $modelController->resort($args["model"], new Fluent($request->getParsedBody()));
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -266,6 +267,14 @@ class GenerCodeSlim {
         $this->app->get("/asset/{model}/{field}/{id}", function($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $data = $modelController->getAsset($args["model"], $args["field"], $args["id"]);
+            $response->getBody()->write($data);
+            return $response;
+        });
+
+
+        $this->app->patch("/asset/{model}/{field}/{id}", function($request, $response, $args) {
+            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+            $data = $modelController->patchAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write($data);
             return $response;
         });
@@ -304,17 +313,7 @@ class GenerCodeSlim {
             return $response;
         });
 
-        if (isset($_ENV['DEV'])) {
-            $this->app->get("/debugsql/{name}/{state}", function($request, $response, $args) {
-                return $response;
-            });
-        
-            $this->app->get("/debuguser", function($request, $response, $args)  {
-                return $response;
-            });
-        }
 
-       
 
         $this->app->group("/user", function (RouteCollectorProxy $group) {
 
@@ -339,7 +338,7 @@ class GenerCodeSlim {
                 $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
                 $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $args["name"], $id);
-                $response->getBody()->write(json_encode("success"));
+                $response->getBody()->write(json_encode(["--id"=>1]));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
@@ -355,10 +354,10 @@ class GenerCodeSlim {
             $group->post('/anon/{name}', function (Request $request, Response $response, $args) {
                 $name = $args['name'];
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
-                $profile = $profileController->ceateAnon($args["name"], new Fluent($request->getParsedBody()));
+                $id = $profileController->createAnon($args["name"], new Fluent($request->getParsedBody()));
                 $tokenHandler = $this->make(TokenHandler::class);
-                $response = $tokenHandler->save($response, $profile);
-                $response->getBody()->write(json_encode("success"));
+                $response = $tokenHandler->save($response, $name, $id);
+                $response->getBody()->write(json_encode(["--id"=>$id]));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
@@ -383,7 +382,7 @@ class GenerCodeSlim {
             $group->post("/logout", function (Request $request, Response $response, $args) {
                 $tokenHandler = $this->get(TokenHandler::class);
                 $response = $tokenHandler->logout($response);
-                $response->getBody()->write(json_encode($this->user));
+                $response->getBody()->write(json_encode("success"));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
