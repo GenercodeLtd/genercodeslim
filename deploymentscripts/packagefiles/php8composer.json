@@ -1,0 +1,29 @@
+{
+    "name": "genercodeltd/genercodeorm",
+    "description": "Core Genercode ORM functionality for API builder",
+    "authors": [
+        {
+            "name": "Suzanne Clifford",
+            "email": "suzanne.clifford@presstojam.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {
+        "illuminate/database": "^9.30",
+        "illuminate/container": "^9.30",
+        "illuminate/queue": "^9.30",
+        "illuminate/filesystem": "^9.31",
+        "league/flysystem-aws-s3-v3": "3.0"
+    },
+    "autoload" : {
+        "psr-4" : {
+            "GenerCodeOrm\\" : "app/"
+        },
+        "files" : [
+            "app/standardfunctions.php"
+        ]
+    },
+    "license" : "Apache-2.0"
+}
