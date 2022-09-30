@@ -336,7 +336,7 @@ class GenerCodeSlim {
 
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
-                $id = $profileController->login($args["name"]);
+                $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
                 $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $args["name"], $id);
                 $response->getBody()->write(json_encode(["--id"=>1]));
