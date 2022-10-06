@@ -106,20 +106,20 @@ class GenerCodeSlim {
         $container->bind(\GenerCodeOrm\Model::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
             $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
-            return new \GenerCodeOrm\Model($dbmanager->getConnection(), $schema);
+            return new \GenerCodeOrm\Model($dbmanager->connection(), $schema);
         });
 
 
         $container->bind(\GenerCodeOrm\Reference::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
             $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
-            return new \GenerCodeOrm\Reference($dbmanager->getConnection(), $schema);
+            return new \GenerCodeOrm\Reference($dbmanager->connection(), $schema);
         });
 
         $container->bind(\GenerCodeOrm\Repository::class, function($app) {
             $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
             $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
-            return new \GenerCodeOrm\Repository($dbmanager->getConnection(), $schema);
+            return new \GenerCodeOrm\Repository($dbmanager->connection(), $schema);
         });
         
 
