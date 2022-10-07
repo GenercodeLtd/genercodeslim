@@ -56,8 +56,8 @@ class GenerCodeContainer extends Container {
         });
 
 
-        $this->bind(\GenerCodeOrm\Queue::class, function($app) {
-            return new \GenerCodeOrm\Queue($app);
+        $this->bind(\GenerCodeSlim\Queue::class, function($app) {
+            return new \GenerCodeSlim\Queue($app);
         });
 
         $this->bind(\GenerCodeOrm\SchemaRepository::class, function($app) {
