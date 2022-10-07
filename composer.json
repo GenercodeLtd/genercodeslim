@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "genercodeltd/genercodeorm": "^2.0",
+        "genercodeltd/genercodeorm": "^1.0",
         "slim/slim": "^4.10",
         "slim/psr7": "^1.5",
         "dflydev/fig-cookies": "^3.0",

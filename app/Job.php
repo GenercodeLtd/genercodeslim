@@ -29,7 +29,8 @@ abstract class Job
     {
         $this->app = $app;
         $this->profile = $app->get(\GenerCodeOrm\Profile::class);
-        $this->queue = $this->app->config['aws-sqs.default.queue'];
+        $this->queue = $this->app->config['queue']["sqsarn"];
+        $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
     }
 
     public function __set($key, $val)
