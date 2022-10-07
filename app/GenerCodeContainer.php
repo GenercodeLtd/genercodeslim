@@ -26,14 +26,13 @@ class GenerCodeContainer extends Container {
 
     function loadConfigs(array $environment, $config_file = __DIR__ . "/Configs.php") {
         $env = new Fluent($environment);
-        return require($config_file);
+        $confgs = require($config_file);
+        $fluent = new Fluent($configs);
+        $this->instance('config', $fluent);
     }
 
   
-    function addDependencies($configs = []) {
-
-        $fluent = new Fluent($configs);
-        $this->instance('config', $fluent);
+    function addDependencies() {
 
         $factory = new ConnectionFactory($this);
         $manager = new DatabaseManager($this, $factory);

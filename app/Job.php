@@ -115,7 +115,7 @@ abstract class Job
         return ($set->progress == "PROCESSED" OR $set->progress == "FAILED") ? true : false;
     }
 
-    abstract public function process(GenerCodeContainer $container);
+    abstract public function process();
 
     abstract public function dispatch($data);
 

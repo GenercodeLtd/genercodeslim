@@ -11,16 +11,15 @@ use Aws\Exception\AwsException;
 class Queue
 {
  
-    protected array $env;
-    protected $config_file;
-    protected array $stack = [];
     protected $aws_config;
     protected $queue;
+    protected $app;
 
-    public function __construct(array $env, $config_file)
+    public function __construct(Container $app)
     {
-        $this->env = $env;
-        $this->config_file = $config_file;
+        $this->app = $app;
+        $this->queue = $this->app->config['queue']["sqsarn"];
+        $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
     }
 
     public function __set($key, $val)
@@ -37,44 +36,25 @@ class Queue
         }
     }
 
-    public function addMiddleware($arr)
+
+
+    public function process($name, $job_id, $configs)
     {
-        $this->stack[] = $arr;
-    }
-
-
-    public function next(Container $container, Job $job)
-    {
-        if (count($this->stack) > 0) {
-            $val = array_unshift($this->stack);
-            return $val($this, $container, $job);
-        } else {
-            return $job->process($container);
-        }
-    }
-
-
-    public function process($name, $id, $configs)
-    {
-        $container = new GenerCodeContainer();
-        $configs = $container->loadConfigs($this->env, $this->config_file);
-
-        foreach($job->configs as $key=>$config) {
-            $configs[$key] = $config;
-        }
-
-        $container->addDependencies($configs);
+        $oconfigs = $this->app->config->toArr();
         
-        $job = $container->get($name);
-        $job->id = $id;
+        $container = new GenerCodeContainer();
+        $container->instance("config", new Fluent($oconfigs));
+      
+        $job = new $name($container);
+        $job->id = $job_id;
+        $job->processConfigs($configs);
+        $container->addDependencies(); //add after configs have possibly been changed
         $job->load();
-
-    
-
+        
         $job->progress = "PROCESSING";
         $job->save();
         try {
-            $this->next($container, $job);
+            $job->process();
             $job->progress = "PROCESSED";
             $job->save();
         } catch(\Exception $e) {
@@ -85,7 +65,7 @@ class Queue
     }
 
 
-    public function runner()
+    public function runner($logger)
     {
         $client = new SqsClient($this->aws_config);
         while (1) {
