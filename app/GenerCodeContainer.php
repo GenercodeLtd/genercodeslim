@@ -26,7 +26,7 @@ class GenerCodeContainer extends Container {
 
     function loadConfigs(array $environment, $config_file = __DIR__ . "/Configs.php") {
         $env = new Fluent($environment);
-        $confgs = require($config_file);
+        $configs = require($config_file);
         $fluent = new Fluent($configs);
         $this->instance('config', $fluent);
     }

@@ -20,7 +20,7 @@ abstract class Job
     protected $aws_config;
     protected $queue;
     protected $data;
-    protected $config;
+    protected $configs;
     protected $progress;
     protected $message;
     protected $id;
@@ -57,7 +57,7 @@ abstract class Job
             "user-login-id"=>$this->profile->id,
             "name"=>$name,
             "data"=>json_encode($this->data),
-            "configs"=>json_encode($this->config),
+            "configs"=>json_encode($this->configs),
             "progress"=>"PENDING"
         ];
         $arr = $model->create();
