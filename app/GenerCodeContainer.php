@@ -35,8 +35,8 @@ class GenerCodeContainer extends Container {
         $fluent = new Fluent($configs);
         $this->instance('config', $fluent);
 
-        $factory = new ConnectionFactory($container);
-        $manager = new DatabaseManager($container, $factory);
+        $factory = new ConnectionFactory($this);
+        $manager = new DatabaseManager($this, $factory);
         $this->instance(DatabaseManager::class, $manager); 
 
         $profileFactory = new \PressToJam\ProfileFactory();
