@@ -36,18 +36,25 @@ class Queue
         }
     }
 
+    public function processUser(Container $container, $configs) {
+        $factory = $this->app->get("factory");
+        $profile = ($factory)($configs["name"]);
+        $profile->id = $configs["profile"]["id"];
+        $container->instance(\GenerCodeOrm\Profile::class, $profile);
+    }
 
 
     public function process($name, $job_id, $configs)
     {
-        $oconfigs = $this->app->config->toArr();
+        $oconfigs = $this->app->config->getAttributes();
         
         $container = new GenerCodeContainer();
         $container->instance("config", new Fluent($oconfigs));
       
         $job = new $name($container);
         $job->id = $job_id;
-        $job->processConfigs($configs);
+        $job->processConfigs($configs["configs"]);
+        $this->processUser($container, $configs["profile"]);
         $container->addDependencies(); //add after configs have possibly been changed
         $job->load();
         
@@ -83,7 +90,7 @@ class Queue
 
                     $message = json_decode($msg["Body"]);
 
-                    $this->process($messge->name, $message->id, $message->configs);
+                    $this->process($message->name, $message->id, $message->configs);
 
                     $result = $this->client->deleteMessage([
                         'QueueUrl' => $this->queue, // REQUIRED

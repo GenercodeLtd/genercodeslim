@@ -64,9 +64,10 @@ abstract class Job
 
         $client = $this->createClient();
 
+        $configs = ["configs"=>$this->configs, "profile" => ["name"=>$this->profile->name, "id"=>$this->profile->id]];
         $params = [
             'DelaySeconds' => 10,
-            'MessageBody' => json_encode(["id"=>$arr["--id"], "name"=>$name, "configs"=>$this->config]),
+            'MessageBody' => json_encode(["id"=>$arr["--id"], "name"=>$name, "configs"=>$configs]),
             'QueueUrl' => $this->queue
         ];
 
@@ -113,6 +114,11 @@ abstract class Job
         $dataSet = $model->createDataSet(["--id"=>$id]);
         $set = $dataSet->select($dataSet);
         return ($set->progress == "PROCESSED" OR $set->progress == "FAILED") ? true : false;
+    }
+
+
+    public function processConfigs($configs) {
+        $this->configs = $configs;
     }
 
     abstract public function process();
