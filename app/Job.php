@@ -20,10 +20,10 @@ abstract class Job
     protected $aws_config;
     protected $queue;
     protected $data;
-    protected $configs;
+    protected $configs = [];
     protected $progress;
-    protected $message;
-    protected $id;
+    protected $message = "";
+    protected $id = 0;
    
     public function __construct(Container $app)
     {
@@ -81,7 +81,7 @@ abstract class Job
         $model->name = "queue";
         $model->where = ["--id"=>$this->id];
         $data = $model->get();
-        $this->data = $data->data;
+        $this->data = new Fluent(json_decode($data->data));
         $this->configs = $data->configs;
         $this->progress = $data->progress;
     }

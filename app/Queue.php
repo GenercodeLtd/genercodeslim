@@ -38,8 +38,8 @@ class Queue
 
     public function processUser(Container $container, $configs) {
         $factory = $this->app->get("factory");
-        $profile = ($factory)($configs["name"]);
-        $profile->id = $configs["profile"]["id"];
+        $profile = ($factory)($configs->name);
+        $profile->id = $configs->id;
         $container->instance(\GenerCodeOrm\Profile::class, $profile);
     }
 
@@ -53,8 +53,8 @@ class Queue
       
         $job = new $name($container);
         $job->id = $job_id;
-        $job->processConfigs($configs["configs"]);
-        $this->processUser($container, $configs["profile"]);
+        $job->processConfigs($configs->configs);
+        $this->processUser($container, $configs->profile);
         $container->addDependencies(); //add after configs have possibly been changed
         $job->load();
         
@@ -92,7 +92,7 @@ class Queue
 
                     $this->process($message->name, $message->id, $message->configs);
 
-                    $result = $this->client->deleteMessage([
+                    $result = $client->deleteMessage([
                         'QueueUrl' => $this->queue, // REQUIRED
                         'ReceiptHandle' => $msg['ReceiptHandle'] // REQUIRED
                         ]);
