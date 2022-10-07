@@ -8,11 +8,15 @@ use \Illuminate\Support\Fluent;
 use Aws\Sqs\SqsClient; 
 use Aws\Exception\AwsException;
 
+use \GenerCodeOrm\Model;
+use \GenerCodeOrm\Repository;
+use \GenerCodeOrm\Profile;
+
 abstract class Job
 {
 
     protected Container $app;
-    protected Profile $profile;
+    protected \GenerCodeOrm\Profile $profile;
     protected $aws_config;
     protected $queue;
     protected $data;
@@ -111,5 +115,7 @@ abstract class Job
     }
 
     abstract public function process(GenerCodeContainer $container);
+
+    abstract public function dispatch($data);
 
 }
