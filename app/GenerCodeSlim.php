@@ -26,7 +26,7 @@ class GenerCodeSlim {
 
     function initMiddleware($app) {
      
-        $this->addBodyParsingMiddleware();
+        $app->addBodyParsingMiddleware();
         $app->addRoutingMiddleware();
 
 
@@ -58,7 +58,6 @@ class GenerCodeSlim {
 
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
     
-        $app = $this;
         $errFunc = function (
             Request $request,
             \Throwable $exception,
@@ -100,7 +99,7 @@ class GenerCodeSlim {
     }
 
 
-    function addRoutes() {
+    function addRoutes($app) {
 
         $app->options('/{routes:.+}', function ($request, $response, $args) {
             return $response;

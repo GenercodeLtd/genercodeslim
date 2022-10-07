@@ -99,8 +99,8 @@ class GenerCodeContainer extends Container {
 
         $this->bind(\GenerCodeOrm\FileHandler::class, function($app) {
             $file = $app->make(\Illuminate\Filesystem\FilesystemManager::class);
-            $prefix = $app->config["filesystems.disks.s3"]['prefix_path'];
-            $fileHandler = new \GenerCodeOrm\FileHandler($file, $prefix);
+            $disk = $file->disk("s3");
+            $fileHandler = new \GenerCodeOrm\FileHandler($disk);
             return $fileHandler;
         });
  
