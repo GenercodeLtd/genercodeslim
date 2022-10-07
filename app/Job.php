@@ -1,0 +1,115 @@
+<?php
+
+namespace GenerCodeSlim;
+
+use \Illuminate\Container\Container;
+use \Illuminate\Support\Fluent;
+
+use Aws\Sqs\SqsClient; 
+use Aws\Exception\AwsException;
+
+abstract class Job
+{
+
+    protected Container $app;
+    protected Profile $profile;
+    protected $aws_config;
+    protected $queue;
+    protected $data;
+    protected $config;
+    protected $progress;
+    protected $message;
+    protected $id;
+   
+    public function __construct(Container $app)
+    {
+        $this->app = $app;
+        $this->profile = $app->get(\GenerCodeOrm\Profile::class);
+        $this->queue = $this->app->config['aws-sqs.default.queue'];
+    }
+
+    public function __set($key, $val)
+    {
+        if (property_exists($this, $key)) {
+            $this->$key = $val;
+        }
+    }
+
+    public function __get($key) {
+        if (property_exists($this, $key)) return $this->$key;
+    }
+
+    function createClient() {
+        return new SqsClient($this->aws_config);
+    }
+
+
+    function addToQueue() {
+        $name = get_class($this);
+        $model = $this->app->get(Model::class);
+        $model->name = "queue";
+        $model->data = [
+            "user-login-id"=>$this->profile->id,
+            "name"=>$name,
+            "data"=>json_encode($this->data),
+            "configs"=>json_encode($this->config),
+            "progress"=>"PENDING"
+        ];
+        $arr = $model->create();
+
+        $client = $this->createClient();
+
+        $params = [
+            'DelaySeconds' => 10,
+            'MessageBody' => json_encode(["id"=>$arr["--id"], "name"=>$name, "configs"=>$this->config]),
+            'QueueUrl' => $this->queue
+        ];
+
+        $client->sendMessage($params);
+       
+        return $arr["--id"];
+    }
+
+    function load() {
+        $model = $this->app->get(Repository::class);
+        $model->name = "queue";
+        $model->where = ["--id"=>$this->id];
+        $data = $model->get();
+        $this->data = $data->data;
+        $this->configs = $data->configs;
+        $this->progress = $data->progress;
+    }
+
+
+    function save() {
+        $model = $this->app->get(Model::class);
+        $model->name = "queue";
+        $model->where = ["--id"=>$this->id];
+        $model->data = ["progress"=>$this->progress, "response"=>$this->message];
+        $res = $model->update();
+        return $res["original"];
+    }
+
+
+
+    function processFeedback($id) {
+        $data = $this->getFromQueue($id);
+        $model = $this->app->get(Model::class);
+        $model->name = "queue";
+        $model->where = ["--id"=>$id];
+        $res = $model->delete();
+        return $res["original"];
+    }
+
+
+    function isComplete($id) {
+        $model = $this->app->get(Model::class);
+        $model->name = "queue";
+        $dataSet = $model->createDataSet(["--id"=>$id]);
+        $set = $dataSet->select($dataSet);
+        return ($set->progress == "PROCESSED" OR $set->progress == "FAILED") ? true : false;
+    }
+
+    abstract public function process(GenerCodeContainer $container);
+
+}
