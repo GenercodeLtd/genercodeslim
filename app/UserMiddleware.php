@@ -48,6 +48,7 @@ class UserMiddleware {
         
         $profile = ($this->factory)($payload->u);
         $profile->id = $payload->i;
+
         $this->container->instance(\GenerCodeOrm\Profile::class, $profile);
                  
             //get the user

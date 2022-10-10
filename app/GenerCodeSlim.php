@@ -15,17 +15,17 @@ use \Illuminate\FileSystem\FileSystemManager;
 use Psr\Log\LoggerInterface;
 
 
-class GenerCodeSlim {
-
-
-    function create(Container $container) {
+class GenerCodeSlim
+{
+    public function create(Container $container)
+    {
         AppFactory::setContainer($container);
         return AppFactory::create();
     }
 
 
-    function initMiddleware($app) {
-     
+    public function initMiddleware($app)
+    {
         $app->addBodyParsingMiddleware();
         $app->addRoutingMiddleware();
 
@@ -33,8 +33,8 @@ class GenerCodeSlim {
         $container = $app->getContainer();
 
         $app->add(new UserMiddleware(
-            $container, 
-            $container->get("factory"), 
+            $container,
+            $container->get("factory"),
             $container->make(TokenHandler::class)
         ));
 
@@ -57,7 +57,7 @@ class GenerCodeSlim {
 
 
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
-    
+
         $errFunc = function (
             Request $request,
             \Throwable $exception,
@@ -67,10 +67,12 @@ class GenerCodeSlim {
             ?LoggerInterface $logger = null
         ) use ($app) {
             $container = $app->getContainer();
-            if ($logger) $logger->error($exception->getMessage());
-        
+            if ($logger) {
+                $logger->error($exception->getMessage());
+            }
+
             $payload = ['error' => $exception->getMessage(), "file"=>$exception->getFile(), "line"=>$exception->getLine()];
-        
+
             $response = $app->getResponseFactory()->createResponse();
             $response->getBody()->write(
                 json_encode($payload, JSON_UNESCAPED_UNICODE)
@@ -84,23 +86,22 @@ class GenerCodeSlim {
 
             $status = (int) $status;
 
-            if ($status < 100 OR $status > 500) $status = 500;
-        
+            if ($status < 100 or $status > 500) {
+                $status = 500;
+            }
+
             return $response->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
             ->withHeader('Access-Control-Allow-Headers', implode(",", $container->config->cors['headers']))
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
             ->withHeader('Access-Control-Allow-Credentials', 'true');
-            
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
-      
-        
     }
 
 
-    function addRoutes($app) {
-
+    public function addRoutes($app)
+    {
         $app->options('/{routes:.+}', function ($request, $response, $args) {
             return $response;
         });
@@ -108,9 +109,13 @@ class GenerCodeSlim {
         $app->map(['POST', 'PUT', 'DELETE'], '/data/{model}', function (Request $request, Response $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $method = $request->getMethod();
-            if ($method == "POST") $results = $modelController->create($args["model"], new Fluent($request->getParsedBody()));
-            else if ($method == "PUT") $results = $modelController->update($args["model"], new Fluent($request->getParsedBody()));
-            else if ($method == "DELETE") $results = $modelController->delete($args["model"], new Fluent($request->getParsedBody()));
+            if ($method == "POST") {
+                $results = $modelController->create($args["model"], new Fluent($request->getParsedBody()));
+            } elseif ($method == "PUT") {
+                $results = $modelController->update($args["model"], new Fluent($request->getParsedBody()));
+            } elseif ($method == "DELETE") {
+                $results = $modelController->delete($args["model"], new Fluent($request->getParsedBody()));
+            }
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -124,8 +129,8 @@ class GenerCodeSlim {
             return $response
             ->withHeader('Content-Type', 'application/json');
         });
-    
-        
+
+
 
         $app->get('/data/{model}[/{state}]', function (Request $request, Response $response, $args) {
             $state = (isset($args["state"])) ? $args["state"] : "get";
@@ -137,7 +142,7 @@ class GenerCodeSlim {
         });
 
         $app->get('/count/{model}', function (Request $request, Response $response, $args) {
-            $name = $args['model']; 
+            $name = $args['model'];
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $results = $modelController->count($args["model"], new Fluent($request->getQueryParams()));
             $response->getBody()->write(json_encode($results));
@@ -146,7 +151,7 @@ class GenerCodeSlim {
         });
 
 
-        $app->get("/asset/{model}/{field}/{id}", function($request, $response, $args) {
+        $app->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $data = $modelController->getAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write($data);
@@ -154,7 +159,7 @@ class GenerCodeSlim {
         });
 
 
-        $app->patch("/asset/{model}/{field}/{id}", function($request, $response, $args) {
+        $app->patch("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $data = $modelController->patchAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write($data);
@@ -162,7 +167,7 @@ class GenerCodeSlim {
         });
 
 
-        $app->delete("/asset/{model}/{field}/{id}", function($request, $response, $args) {
+        $app->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $data = $modelController->removeAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
@@ -170,14 +175,16 @@ class GenerCodeSlim {
             ->withHeader('Content-Type', 'application/json');
         });
 
-        
-        $app->get("/reference/{model}/{field}[/{id}]", function($request, $response, $args) {
+
+        $app->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
             $params = $request->getQueryParams();
             $fluent = null;
-            if ($params) $fluent = new Fluent($params);
-            $id = (isset($args["id"])) ? $args["id"] : 0; 
-            $results = $modelController->reference($args["model"], $args["field"], $id, $fluent); 
+            if ($params) {
+                $fluent = new Fluent($params);
+            }
+            $id = (isset($args["id"])) ? $args["id"] : 0;
+            $results = $modelController->reference($args["model"], $args["field"], $id, $fluent);
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -185,30 +192,29 @@ class GenerCodeSlim {
 
 
 
-        
 
-        $app->map(["POST", "PUT"], "/import/{name}", function($request, $response, $args) {
+
+        $app->map(["POST", "PUT"], "/import/{name}", function ($request, $response, $args) {
             return $response;
         });
 
-        $app->map(["POST", "DELETE"], "/bulk/{name}", function($request, $response, $args) {
+        $app->map(["POST", "DELETE"], "/bulk/{name}", function ($request, $response, $args) {
             return $response;
         });
 
 
 
         $app->group("/user", function (RouteCollectorProxy $group) {
-
-            $group->get("/dictionary", function($request, $response, $args)  {
+            $group->get("/dictionary", function ($request, $response, $args) {
                 $profile = $this->get(\GenerCodeOrm\Profile::class);
                 $dict = file_get_contents($this->config->repo_root . "/Dictionary/" . $profile->name . ".json");
                 $response->getBody()->write($dict);
                 return $response
-                ->withHeader('Content-Type', 'application/json'); 
+                ->withHeader('Content-Type', 'application/json');
             });
 
 
-            $group->get("/site-map", function($request, $response) {
+            $group->get("/site-map", function ($request, $response) {
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
                 $response->getBody()->write(json_encode($profileController->getSitemap()));
                 return $response
@@ -231,8 +237,8 @@ class GenerCodeSlim {
                 return $tokenHandler->loginFromToken($params["token"], $response, $args["name"])
                 ->withHeader('Content-Type', 'application/json');
             });
-    
-    
+
+
             $group->post('/anon/{name}', function (Request $request, Response $response, $args) {
                 $name = $args['name'];
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
@@ -244,7 +250,7 @@ class GenerCodeSlim {
                 ->withHeader('Content-Type', 'application/json');
             });
 
-            
+
             $group->put("/switch-tokens", function (Request $request, Response $response, $args) {
                 $tokenHandler = $this->get(TokenHandler::class);
                 $response = $tokenHandler->switchTokens($request, $response);
@@ -252,15 +258,15 @@ class GenerCodeSlim {
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
-            
-            $group->get("/check-user", function (Request $request, Response $response, $args)  {
+
+            $group->get("/check-user", function (Request $request, Response $response, $args) {
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
                 $response->getBody()->write(json_encode($profileController->checkUser()));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
 
-            
+
             $group->post("/logout", function (Request $request, Response $response, $args) {
                 $tokenHandler = $this->get(TokenHandler::class);
                 $response = $tokenHandler->logout($response);
@@ -270,8 +276,28 @@ class GenerCodeSlim {
             });
         });
 
+
+        $app->group("/dispatch", function (RouteCollectorProxy $group) {
+            $group->get("/status/{id}", function (Request $request, Response $response, $args) {
+                $model = $this->get(\GenerCodeOrm\Repository::class);
+                $model->name = "queue";
+                $model->fields = ["progress"];
+                $model->where = ["--id"=>$args['id']];
+                $data = $model->get();
+                $response->getBody()->write(json_encode($data));
+                return $response
+                ->withHeader('Content-Type', 'application/json');
+            });
+
+
+            $group->delete("/remove/{id}", function (Request $request, Response $response, $args) {
+                $model = $this->get(\GenerCodeOrm\Repository::class);
+                $model->name = "queue";
+                $model->where = ["--id"=>$args['id']];
+                $response->getBody()->write(json_encode($model->delete()));
+                return $response
+                ->withHeader('Content-Type', 'application/json');
+            });
+        });
     }
-
-   
-
 }

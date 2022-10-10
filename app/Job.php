@@ -92,19 +92,7 @@ abstract class Job
         $model->name = "queue";
         $model->where = ["--id"=>$this->id];
         $model->data = ["progress"=>$this->progress, "response"=>$this->message];
-        $res = $model->update();
-        return $res["original"];
-    }
-
-
-
-    function processFeedback($id) {
-        $data = $this->getFromQueue($id);
-        $model = $this->app->get(Model::class);
-        $model->name = "queue";
-        $model->where = ["--id"=>$id];
-        $res = $model->delete();
-        return $res["original"];
+        return $model->update();
     }
 
 
