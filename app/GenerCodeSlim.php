@@ -161,7 +161,7 @@ class GenerCodeSlim
 
         $app->patch("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $data = $modelController->patchAsset($args["model"], $args["field"], $args["id"]);
+            $data = $modelController->patchAsset($args["model"], $args["field"], $args["id"], $request->getBody());
             $response->getBody()->write($data);
             return $response;
         });
