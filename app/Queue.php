@@ -88,24 +88,24 @@ class Queue
                 if (!empty($result->get('Messages'))) {
                     $msg = $result->get('Messages')[0];
 
-                    $message = json_decode($msg["Body"]);
-
-                    $this->process($message->name, $message->id, $message->configs);
-
+                    //delete from queue as soon as it arrived
                     $result = $client->deleteMessage([
                         'QueueUrl' => $this->queue, // REQUIRED
                         'ReceiptHandle' => $msg['ReceiptHandle'] // REQUIRED
                         ]);
+
+                    $message = json_decode($msg["Body"]);
+                    $this->process($message->name, $message->id, $message->configs);
                     
                 }
-            } catch (AwsException $e) {
+            } catch (\Exception $e) {
                 //going to log that the process has executed and an error has happened,
                 //next time cron checks, it can test for this.
                 if ($logger) {
                     $logger->critical("Queue failed: " . $e->getMessage());
                 } else {
                     file_put_contents("/tmp/failed.txt", $e->getMessage());
-                    $fp = fopen("/tmp/log.txt", 'a');
+                    $fp = fopen(__DIR__ . "/log.txt", 'a');
                     fwrite($fp, date('Y-m-d H:i:s') . " " . $e->getMessage() . "\n");
                     fclose($fp);
                 }

@@ -94,7 +94,8 @@ class GenerCodeSlim
             ->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
             ->withHeader('Access-Control-Allow-Headers', implode(",", $container->config->cors['headers']))
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-            ->withHeader('Access-Control-Allow-Credentials', 'true');
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader('Content-Type', 'application/json');
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
     }

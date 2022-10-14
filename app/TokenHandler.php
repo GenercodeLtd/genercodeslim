@@ -13,7 +13,7 @@ use \Slim\Exception\HttpUnauthorizedException;
 class TokenHandler
 {
     private $refresh_minutes = 86400;
-    private $auth_minutes = 15;
+    private $auth_minutes = 120;
     private $encoding = 'HS512';
     private $jwt_key;
 
