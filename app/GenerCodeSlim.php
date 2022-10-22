@@ -135,17 +135,22 @@ class GenerCodeSlim
 
         $app->get('/data/{model}[/{state}]', function (Request $request, Response $response, $args) {
             $state = (isset($args["state"])) ? $args["state"] : "get";
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $results = $modelController->get($args["model"], new Fluent($request->getQueryParams()), $state);
-            $response->getBody()->write(json_encode($results));
+            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+            if ($state == "active") {
+                $results = $repoController->getActive($args["model"], new Fluent($request->getQueryParams()));
+                if (!$results) $results = "{}";
+            } else {
+                $results = $repoController->get($args["model"], new Fluent($request->getQueryParams()));
+            }
+            $response->getBody()->write(json_encode($results, JSON_INVALID_UTF8_SUBSTITUTE));
             return $response
             ->withHeader('Content-Type', 'application/json');
         });
 
         $app->get('/count/{model}', function (Request $request, Response $response, $args) {
             $name = $args['model'];
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $results = $modelController->count($args["model"], new Fluent($request->getQueryParams()));
+            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+            $results = $repoController->count($args["model"], new Fluent($request->getQueryParams()));
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -153,16 +158,16 @@ class GenerCodeSlim
 
 
         $app->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $data = $modelController->getAsset($args["model"], $args["field"], $args["id"]);
+            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write($data);
             return $response;
         });
 
 
         $app->patch("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $data = $modelController->patchAsset($args["model"], $args["field"], $args["id"], $request->getBody());
+            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"], $request->getBody());
             $response->getBody()->write(json_encode($data));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -170,8 +175,8 @@ class GenerCodeSlim
 
 
         $app->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
-            $data = $modelController->removeAsset($args["model"], $args["field"], $args["id"]);
+            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $data = $assetController->removeAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -179,14 +184,14 @@ class GenerCodeSlim
 
 
         $app->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
             $params = $request->getQueryParams();
             $fluent = null;
             if ($params) {
                 $fluent = new Fluent($params);
             }
             $id = (isset($args["id"])) ? $args["id"] : 0;
-            $results = $modelController->reference($args["model"], $args["field"], $id, $fluent);
+            $results = $repoController->reference($args["model"], $args["field"], $id, $fluent);
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
