@@ -31,8 +31,8 @@ class UserMiddleware {
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
 
         $payload = new \StdClass;
-        $payload->u = "public";
-        $payload->i = 0;
+        $payload->u = "accounts";
+        $payload->i = 1;
         
         $auth = FigRequestCookies::get($request, "api-auth");
         $expired = false;

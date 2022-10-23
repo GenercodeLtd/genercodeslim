@@ -160,8 +160,8 @@ class GenerCodeSlim
         $app->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(\GenerCodeOrm\AssetController::class);
             $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
-            $response->getBody()->write($data);
-            return $response;
+            echo $data;
+            exit;
         });
 
 
@@ -175,6 +175,7 @@ class GenerCodeSlim
 
 
         $app->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
+            echo "Going to asset controller";
             $assetController = $this->get(\GenerCodeOrm\AssetController::class);
             $data = $assetController->removeAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
