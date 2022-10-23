@@ -21,7 +21,7 @@
     },
     "autoload" : {
         "psr-4" : {
-            "GenerCodeSlim\\" : "app/"
+            "GenerCodeSlim\\" : "src/"
         }
     },
     "license" : "Apache-2.0"
