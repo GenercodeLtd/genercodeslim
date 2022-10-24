@@ -28,7 +28,7 @@ abstract class Job
     public function __construct(Container $app)
     {
         $this->app = $app;
-        $this->profile = $app->get(\GenerCodeOrm\Profile::class);
+        $this->profile = $app->make(\GenerCodeOrm\Profile::class);
         $this->queue = $this->app->config['queue']["sqsarn"];
         $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
     }
@@ -51,16 +51,15 @@ abstract class Job
 
     function addToQueue() {
         $name = get_class($this);
-        $model = $this->app->get(Model::class);
-        $model->name = "queue";
-        $model->data = [
+        $model = $this->app->get(ModelController::class);
+        $data  = new Fluent([
             "user-login-id"=>$this->profile->id,
             "name"=>$name,
             "data"=>json_encode($this->data),
             "configs"=>json_encode($this->configs),
             "progress"=>"PENDING"
-        ];
-        $arr = $model->create();
+        ]);
+        $arr = $model->create("queue", $data);
 
         $client = $this->createClient();
 
