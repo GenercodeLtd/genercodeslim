@@ -217,6 +217,12 @@ class GenerCodeSlim
                 ->withHeader('Content-Type', 'application/json');
             });
 
+            $group->get("/details", function ($request, $response) {
+                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $response->getBody()->write(json_encode($profileController->userDetails()));
+                return $response
+                ->withHeader('Content-Type', 'application/json');
+            });
 
             $group->get("/site-map", function ($request, $response) {
                 $profileController = $this->get(\GenerCodeOrm\ProfileController::class);

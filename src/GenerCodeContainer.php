@@ -66,12 +66,6 @@ class GenerCodeContainer extends Container {
         });*/
 
 
-        $this->bind(\GenerCodeOrm\Reference::class, function($app) {
-            $dbmanager = $app->get(\Illuminate\Database\DatabaseManager::class);
-            $schema = $app->make(\GenerCodeOrm\SchemaRepository::class);
-            return new \GenerCodeOrm\Reference($dbmanager->connection(), $schema);
-        });
-
         $this->bind(\Illuminate\Filesystem\FilesystemManager::class, function($app) {
             return new \Illuminate\Filesystem\FilesystemManager($app);
         });
@@ -90,6 +84,10 @@ class GenerCodeContainer extends Container {
 
         $this->bind(\GenerCodeOrm\AssetController::class, function($app) {
             return new \GenerCodeOrm\AssetController($app);
+        });
+
+        $this->bind(\GenerCodeOrm\ReferenceController::class, function($app) {
+            return new \GenerCodeOrm\ReferenceController($app);
         });
 
         $this->bind(\GenerCodeOrm\FileHandler::class, function($app) {
