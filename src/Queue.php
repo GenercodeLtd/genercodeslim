@@ -55,7 +55,7 @@ class Queue
         $job->id = $job_id;
         $job->processConfigs($configs->configs);
         $this->processUser($container, $configs->profile);
-        $container->addDependencies(); //add after configs have possibly been changed
+        $container->addDependencies(new \PressToJam\ProfileFactory()); //add after configs have possibly been changed
         $job->load();
         
         $job->progress = "PROCESSING";
@@ -102,7 +102,7 @@ class Queue
                 //going to log that the process has executed and an error has happened,
                 //next time cron checks, it can test for this.
                 if ($logger) {
-                    $logger->critical("Queue failed: " . $e->getMessage());
+                    $logger->critical("Queue failed: " . $e->getMessage() . " File: " . $e->getFile() . " " . $e->getLine());
                 } else {
                     file_put_contents("/tmp/failed.txt", $e->getMessage());
                     $fp = fopen(__DIR__ . "/log.txt", 'a');

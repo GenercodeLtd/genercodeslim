@@ -9,7 +9,6 @@ use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
 
 use \GenerCodeOrm\Model;
-use \GenerCodeOrm\Repository;
 use \GenerCodeOrm\Profile;
 
 abstract class Job
@@ -50,10 +49,14 @@ abstract class Job
         return new SqsClient($this->aws_config);
     }
 
+    function getModel() {
+        return $this->app->makeWith(Model::class, ["name"=>"queue", "entities"=>$this->profile->factory]);
+    }
+
 
     function addToQueue() {
         $name = get_class($this);
-        $model = $this->app->makeWith(Model::class, ["name"=>"queue", "entities"=>$this->profile->factory]);
+        $model = $this->getModel();
         
         $root = $model->root;
         $params  = [
@@ -98,11 +101,15 @@ abstract class Job
         return $id;
     }
 
+
     function load() {
-        $model = $this->app->get(Repository::class);
-        $model->name = "queue";
-        $model->where = ["--id"=>$this->id];
-        $data = $model->get();
+        $model = $this->getModel();
+        $model->where("--id", "=", $this->id);
+        $data = $model->setFromEntity()
+        ->where("--id", "=", $this->id)
+        ->take(1)
+        ->get()
+        ->first();
         $this->data = new Fluent(json_decode($data->data));
         $this->configs = $data->configs;
         $this->progress = $data->progress;
@@ -110,19 +117,18 @@ abstract class Job
 
 
     function save() {
-        $model = $this->app->get(Model::class);
-        $model->name = "queue";
-        $model->where = ["--id"=>$this->id];
-        $model->data = ["progress"=>$this->progress, "response"=>$this->message];
-        return $model->update();
+        $model = $this->getModel();
+        $model->where("--id", "=", $this->id);
+        return $model->update(["progress"=>$this->progress, "response"=>$this->message]);
     }
 
 
     function isComplete($id) {
-        $model = $this->app->get(Model::class);
-        $model->name = "queue";
-        $dataSet = $model->createDataSet(["--id"=>$id]);
-        $set = $dataSet->select($dataSet);
+        $model = $this->getModel();
+        $set = $model->where("--id", "=", $this->id)
+        ->take(1)
+        ->get()
+        ->first();
         return ($set->progress == "PROCESSED" OR $set->progress == "FAILED") ? true : false;
     }
 
