@@ -8,7 +8,7 @@ use \Illuminate\Support\Fluent;
 use Aws\Sqs\SqsClient; 
 use Aws\Exception\AwsException;
 
-use \GenerCodeOrm\Model;
+use \GenerCodeOrm\ModelController;
 use \GenerCodeOrm\Repository;
 use \GenerCodeOrm\Profile;
 
@@ -51,28 +51,42 @@ abstract class Job
 
     function addToQueue() {
         $name = get_class($this);
-        $model = $this->app->get(ModelController::class);
-        $data  = new Fluent([
+        $model = $this->app->makeWith(Model::class, ["name"=>"queue", "entities"=>$this->profile->factory]);
+        
+        $root = $model->root;
+        $params  = [
             "user-login-id"=>$this->profile->id,
             "name"=>$name,
             "data"=>json_encode($this->data),
             "configs"=>json_encode($this->configs),
             "progress"=>"PENDING"
-        ]);
-        $arr = $model->create("queue", $data);
+        ];
+
+        $data = new DataSet($model);
+        foreach($model->root->cells as $alias=>$cell) {
+            if(isset($data[$alias])) {
+                $bind = new \GenerCodeOrm\Binds\SimpleBind($cell, $params[$alias]);
+                $data->addBind($alias, $bind);
+            }
+        }
+
+        $data->validate();
+
+        $id = $model->setFromEntity()->insertGetId($data->toCellNameArr());
 
         $client = $this->createClient();
 
         $configs = ["configs"=>$this->configs, "profile" => ["name"=>$this->profile->name, "id"=>$this->profile->id]];
         $params = [
             'DelaySeconds' => 10,
-            'MessageBody' => json_encode(["id"=>$arr["--id"], "name"=>$name, "configs"=>$configs]),
-            'QueueUrl' => $this->queue
+            'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "configs"=>$configs]),
+            'QueueUrl' => $this->queue,
+            "MessageDeduplicationId"=> $name . "_" . $id
         ];
 
         $client->sendMessage($params);
        
-        return $arr["--id"];
+        return $id;
     }
 
     function load() {
