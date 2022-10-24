@@ -50,12 +50,13 @@ class Queue
         
         $container = new GenerCodeContainer();
         $container->instance("config", new Fluent($oconfigs));
+
+        $this->processUser($container, $configs->profile);
+        $container->addDependencies(new \PressToJam\ProfileFactory()); //add after configs have possibly been changed
       
         $job = new $name($container);
         $job->id = $job_id;
         $job->processConfigs($configs->configs);
-        $this->processUser($container, $configs->profile);
-        $container->addDependencies(new \PressToJam\ProfileFactory()); //add after configs have possibly been changed
         $job->load();
         
         $job->progress = "PROCESSING";

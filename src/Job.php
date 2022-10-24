@@ -104,9 +104,8 @@ abstract class Job
 
     function load() {
         $model = $this->getModel();
-        $model->where("--id", "=", $this->id);
         $data = $model->setFromEntity()
-        ->where("--id", "=", $this->id)
+        ->where("id", "=", $this->id)
         ->take(1)
         ->get()
         ->first();
@@ -118,14 +117,15 @@ abstract class Job
 
     function save() {
         $model = $this->getModel();
-        $model->where("--id", "=", $this->id);
-        return $model->update(["progress"=>$this->progress, "response"=>$this->message]);
+        $model->where("id", "=", $this->id);
+        return $model->setFromEntity()->update(["progress"=>$this->progress, "response"=>$this->message]);
     }
 
 
     function isComplete($id) {
         $model = $this->getModel();
-        $set = $model->where("--id", "=", $this->id)
+        $set = $model->setFromEntity()
+        ->where("id", "=", $this->id)
         ->take(1)
         ->get()
         ->first();

@@ -185,14 +185,10 @@ class GenerCodeSlim
 
 
         $app->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
-            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
-            $params = $request->getQueryParams();
-            $fluent = null;
-            if ($params) {
-                $fluent = new Fluent($params);
-            }
+            $refController = $this->get(\GenerCodeOrm\ReferenceController::class);
+            $params = new Fluent($request->getQueryParams());
             $id = (isset($args["id"])) ? $args["id"] : 0;
-            $results = $repoController->reference($args["model"], $args["field"], $id, $fluent);
+            $results = $refController->load($args["model"], $args["field"], $id, $params);
             $response->getBody()->write(json_encode($results));
             return $response
             ->withHeader('Content-Type', 'application/json');
