@@ -8,7 +8,7 @@ use \Illuminate\Support\Fluent;
 use Aws\Sqs\SqsClient; 
 use Aws\Exception\AwsException;
 
-use \GenerCodeOrm\ModelController;
+use \GenerCodeOrm\Model;
 use \GenerCodeOrm\Repository;
 use \GenerCodeOrm\Profile;
 
@@ -24,6 +24,7 @@ abstract class Job
     protected $progress;
     protected $message = "";
     protected $id = 0;
+    protected $is_fifo = false;
    
     public function __construct(Container $app)
     {
@@ -31,6 +32,7 @@ abstract class Job
         $this->profile = $app->make(\GenerCodeOrm\Profile::class);
         $this->queue = $this->app->config['queue']["sqsarn"];
         $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
+        $this->is_fifo = $this->app->config["queue"]["fifo"];
     }
 
     public function __set($key, $val)
@@ -62,9 +64,9 @@ abstract class Job
             "progress"=>"PENDING"
         ];
 
-        $data = new DataSet($model);
+        $data = new \GenerCodeOrm\DataSet($model);
         foreach($model->root->cells as $alias=>$cell) {
-            if(isset($data[$alias])) {
+            if(isset($params[$alias])) {
                 $bind = new \GenerCodeOrm\Binds\SimpleBind($cell, $params[$alias]);
                 $data->addBind($alias, $bind);
             }
@@ -77,12 +79,19 @@ abstract class Job
         $client = $this->createClient();
 
         $configs = ["configs"=>$this->configs, "profile" => ["name"=>$this->profile->name, "id"=>$this->profile->id]];
+    
         $params = [
-            'DelaySeconds' => 10,
             'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "configs"=>$configs]),
-            'QueueUrl' => $this->queue,
-            "MessageDeduplicationId"=> $name . "_" . $id
+            'QueueUrl' => $this->queue
         ];
+
+        if (!$this->is_fifo) {
+            $params["DelaySeconds"] = 10;
+        } else {
+            $params["MessageDeduplicationId"] = $name . "_" . $id;
+            $params["MessageGroupId"] = $name;
+        }
+
 
         $client->sendMessage($params);
        
