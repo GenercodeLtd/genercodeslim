@@ -49,7 +49,7 @@ class UserMiddleware {
         $profile = ($this->factory)($payload->u);
         $profile->id = $payload->i;
 
-        $this->container->instance(\GenerCodeOrm\Profile::class, $profile);
+        $this->container->bindUserDependencies($profile);
                  
             //get the user
            // $factory = new \PressToJam\ProfileFactory(); 
