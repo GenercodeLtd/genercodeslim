@@ -10,6 +10,8 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Slim\Handlers\Strategies\RequestHandler;
 use \Slim\Exception\HttpUnauthorizedException;
 
+use \Illuminate\Container\Container;
+
 class TokenHandler
 {
     private $refresh_minutes = 86400;
@@ -18,6 +20,9 @@ class TokenHandler
     private $jwt_key;
 
 
+    function __construct(Container $app) {
+        $this->setConfigs($app->config->token);
+    }
 
     public function __get($key)
     {
