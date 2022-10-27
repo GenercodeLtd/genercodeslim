@@ -34,7 +34,7 @@ class GenerCodeSlim
 
         $app->add(new UserMiddleware(
             $container,
-            $container->get("factory"),
+            new \PressToJam\ProfileFactory(),
             $container->make(TokenHandler::class)
         ));
 
