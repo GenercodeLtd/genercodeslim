@@ -165,9 +165,9 @@ class GenerCodeSlim
         });
 
 
-        $app->patch("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
+        $app->post("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(\GenerCodeOrm\AssetController::class);
-            $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"], $request->getBody());
+            $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
             ->withHeader('Content-Type', 'application/json');
