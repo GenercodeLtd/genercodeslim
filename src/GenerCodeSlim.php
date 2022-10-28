@@ -39,23 +39,6 @@ class GenerCodeSlim
         ));
 
 
-        $app->add(new \Tuupola\Middleware\CorsMiddleware([
-            "origin"=>$container->config->cors["origin"],
-            "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
-            "headers.allow" => $container->config->cors['headers'],
-            "headers.expose" => ["Etag"],
-            "credentials" => true,
-            "cache" => 86400,
-            "error" => function ($request, $response, $arguments) {
-                $data["status"] = "error";
-                $data["message"] = $arguments["message"];
-                return $response
-                    ->withHeader("Content-Type", "application/json")
-                    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-            }
-        ]));
-
-
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
         $errFunc = function (
@@ -98,6 +81,23 @@ class GenerCodeSlim
             ->withHeader('Content-Type', 'application/json');
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
+
+        $app->add(new \Tuupola\Middleware\CorsMiddleware([
+            "origin"=>$container->config->cors["origin"],
+            "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
+            "headers.allow" => $container->config->cors['headers'],
+            "headers.expose" => ["Etag"],
+            "credentials" => true,
+            "cache" => 86400,
+            "error" => function ($request, $response, $arguments) {
+                $data["status"] = "error";
+                $data["message"] = $arguments["message"];
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->getBody()
+                    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            }
+        ]));
     }
 
 
