@@ -41,7 +41,7 @@ class Queue
     public function processUser($configs) {
         $profile = ($this->profile_factory)($configs->name);
         $profile->id = $configs->id;
-        $this->app->instance(\GenerCodeOrm\Profile::class, $profile);
+        $this->app->bindUserDependencies($profile);
     }
 
 
@@ -49,7 +49,7 @@ class Queue
     {
         
         $this->processUser($profile);
-        $job = new $name($this->id);
+        $job = new $name($this->app);
         $job->id = $job_id;
 
         $job->load();
@@ -93,6 +93,7 @@ class Queue
                         ]);
 
                     $message = json_decode($msg["Body"]);
+                    var_dump($message);
                     $this->process($message->name, $message->id, $message->profile);
                     
                 }
