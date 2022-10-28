@@ -14,12 +14,14 @@ class Queue
     protected $aws_config;
     protected $queue;
     protected $app;
+    protected $profile_factory;
 
-    public function __construct(Container $app)
+    public function __construct(Container $app, $profile_factory)
     {
         $this->app = $app;
         $this->queue = $this->app->config['queue']["sqsarn"];
         $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
+        $this->profile_factory = $profile_factory;
     }
 
     public function __set($key, $val)
@@ -36,28 +38,23 @@ class Queue
         }
     }
 
-    public function processUser(Container $container, $configs) {
-        $factory = $this->app->get("factory");
-        $profile = ($factory)($configs->name);
+    public function processUser($configs) {
+        $profile = ($this->profile_factory)($configs->name);
         $profile->id = $configs->id;
-        $container->instance(\GenerCodeOrm\Profile::class, $profile);
+        $this->app->instance(\GenerCodeOrm\Profile::class, $profile);
     }
 
 
-    public function process($name, $job_id, $configs)
+    public function process($name, $job_id, $profile)
     {
-        $oconfigs = $this->app->config->getAttributes();
         
-        $container = new GenerCodeContainer();
-        $container->instance("config", new Fluent($oconfigs));
-
-        $this->processUser($container, $configs->profile);
-        $container->addDependencies(new \PressToJam\ProfileFactory()); //add after configs have possibly been changed
-      
-        $job = new $name($container);
+        $this->processUser($profile);
+        $job = new $name($this->id);
         $job->id = $job_id;
-        $job->processConfigs($configs->configs);
+
         $job->load();
+
+
         
         $job->progress = "PROCESSING";
         $job->save();
@@ -96,7 +93,7 @@ class Queue
                         ]);
 
                     $message = json_decode($msg["Body"]);
-                    $this->process($message->name, $message->id, $message->configs);
+                    $this->process($message->name, $message->id, $message->profile);
                     
                 }
             } catch (\Exception $e) {

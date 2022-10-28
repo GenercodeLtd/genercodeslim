@@ -50,7 +50,7 @@ abstract class Job
     }
 
     function getModel() {
-        return $this->app->makeWith(Model::class, ["name"=>"queue", "entities"=>$this->profile->factory]);
+        return $this->app->makeWith(Model::class, ["name"=>"queue"]);
     }
 
 
@@ -81,10 +81,8 @@ abstract class Job
 
         $client = $this->createClient();
 
-        $configs = ["configs"=>$this->configs, "profile" => ["name"=>$this->profile->name, "id"=>$this->profile->id]];
-    
         $params = [
-            'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "configs"=>$configs]),
+            'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "profile"=>["name"=>$this->profile->name, "id"=>$this->profile->id]]),
             'QueueUrl' => $this->queue
         ];
 
@@ -110,7 +108,7 @@ abstract class Job
         ->get()
         ->first();
         $this->data = new Fluent(json_decode($data->data));
-        $this->configs = $data->configs;
+        $this->configs = json_decode($data->configs);
         $this->progress = $data->progress;
     }
 

@@ -113,6 +113,7 @@ class TokenHandler
         $refresh = FigRequestCookies::get($request, "api-refresh");
         $auth = FigRequestCookies::get($request, "api-auth");
 
+        if (!$refresh->getValue()) return $response;
         $payload = $this->decode($refresh->getValue());
         $access_token = $this->encode(["u"=>$payload->u, "i"=>$payload->i], $this->auth_minutes);
 
