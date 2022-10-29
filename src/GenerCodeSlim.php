@@ -74,30 +74,13 @@ class GenerCodeSlim
             }
 
             return $response->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $container->config->cors['origin'])
-            ->withHeader('Access-Control-Allow-Headers', implode(",", $container->config->cors['headers']))
-            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
-            ->withHeader('Access-Control-Allow-Credentials', 'true')
             ->withHeader('Content-Type', 'application/json');
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
 
-        $app->add(new \Tuupola\Middleware\CorsMiddleware([
-            "origin"=>$container->config->cors["origin"],
-            "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
-            "headers.allow" => $container->config->cors['headers'],
-            "headers.expose" => ["Etag"],
-            "credentials" => true,
-            "cache" => 86400,
-            "error" => function ($request, $response, $arguments) {
-                $data["status"] = "error";
-                $data["message"] = $arguments["message"];
-                return $response
-                    ->withHeader("Content-Type", "application/json")
-                    ->getBody()
-                    ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-            }
-        ]));
+        $app->add(new GenerCodeSlimCors(
+            $container
+        ));
     }
 
 
