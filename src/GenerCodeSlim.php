@@ -189,6 +189,16 @@ class GenerCodeSlim
             return $response;
         });
 
+        $app->group("/audit", function(RouteCollectorProxy $group) {
+            $group->get("/history/{name}/{id}", function($request, $response, $args) {
+                $params = $request->getQueryParams();
+                $audit = $this->get(\GenerCodeOrm\AuditController::class);
+                $obj = $audit->getObjectAt($args["name"], $args["id"], $params["last-published"]);
+                $response->getBody()->write(json_encode($obj));
+                return $response
+                ->withHeader("Content-Type", "application/json");
+            });
+        });
 
 
         $app->group("/user", function (RouteCollectorProxy $group) {
