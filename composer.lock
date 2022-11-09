@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb3e1adba4d61d9c5677c6ce489331b8",
+    "content-hash": "ece174d5d9493317065c11d5a790fc14",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -478,25 +478,113 @@
             "time": "2022-07-15T16:48:45+00:00"
         },
         {
-            "name": "genercodeltd/genercodeorm",
-            "version": "v2.0.7",
+            "name": "genercodeltd/genercodeclient",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/GenercodeLtd/genercodeorm.git",
-                "reference": "63ee3843f4f8ad1c6742f35c55ece3eedbf4a13a"
+                "url": "https://github.com/GenercodeLtd/genercodeclient.git",
+                "reference": "51570cb0c441ae41b75c6b35909ec2a14cd28d97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GenercodeLtd/genercodeorm/zipball/63ee3843f4f8ad1c6742f35c55ece3eedbf4a13a",
-                "reference": "63ee3843f4f8ad1c6742f35c55ece3eedbf4a13a",
+                "url": "https://api.github.com/repos/GenercodeLtd/genercodeclient/zipball/51570cb0c441ae41b75c6b35909ec2a14cd28d97",
+                "reference": "51570cb0c441ae41b75c6b35909ec2a14cd28d97",
                 "shasum": ""
             },
             "require": {
-                "illuminate/container": "^9.30",
-                "illuminate/database": "^9.30",
-                "illuminate/filesystem": "^9.31",
-                "illuminate/queue": "^9.30",
-                "league/flysystem-aws-s3-v3": "3.0"
+                "guzzlehttp/guzzle": "^7.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GenerCodeClient\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Suzanne Clifford",
+                    "email": "suzanne.clifford@presstojam.com"
+                }
+            ],
+            "description": "Genercode Client to simplify communication with API",
+            "support": {
+                "issues": "https://github.com/GenercodeLtd/genercodeclient/issues",
+                "source": "https://github.com/GenercodeLtd/genercodeclient/tree/v1.0.8"
+            },
+            "time": "2022-10-27T16:54:11+00:00"
+        },
+        {
+            "name": "genercodeltd/genercodecmd",
+            "version": "v2.0.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GenercodeLtd/GenerCodeCmd.git",
+                "reference": "3f37e2f5e278e3039765b3e353ce5be372e9e4d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GenercodeLtd/GenerCodeCmd/zipball/3f37e2f5e278e3039765b3e353ce5be372e9e4d4",
+                "reference": "3f37e2f5e278e3039765b3e353ce5be372e9e4d4",
+                "shasum": ""
+            },
+            "require": {
+                "genercodeltd/genercodeclient": ">=v1.0.8",
+                "php": ">=7.3.0",
+                "symfony/console": ">=5.4.14"
+            },
+            "bin": [
+                "bin/genercode"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GenerCodeCmd\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Suzanne Clifford",
+                    "email": "suzanne.clifford@presstojam.com"
+                }
+            ],
+            "description": "SDK to manage common API functionality. Easily manage your own hosting",
+            "support": {
+                "issues": "https://github.com/GenercodeLtd/GenerCodeCmd/issues",
+                "source": "https://github.com/GenercodeLtd/GenerCodeCmd/tree/v2.0.15"
+            },
+            "time": "2022-11-09T12:42:26+00:00"
+        },
+        {
+            "name": "genercodeltd/genercodeorm",
+            "version": "v2.0.90",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GenercodeLtd/genercodeorm.git",
+                "reference": "b3c5bb3ae3c6c522d2ccce8be9e8d12e9c7ff6a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GenercodeLtd/genercodeorm/zipball/b3c5bb3ae3c6c522d2ccce8be9e8d12e9c7ff6a4",
+                "reference": "b3c5bb3ae3c6c522d2ccce8be9e8d12e9c7ff6a4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/container": ">=8.83.1",
+                "illuminate/database": ">=8.83.1",
+                "illuminate/filesystem": ">=8.83.24",
+                "illuminate/queue": ">=8.83.1",
+                "league/flysystem-aws-s3-v3": ">=1.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.5"
@@ -504,10 +592,10 @@
             "type": "library",
             "autoload": {
                 "files": [
-                    "app/standardfunctions.php"
+                    "src/standardfunctions.php"
                 ],
                 "psr-4": {
-                    "GenerCodeOrm\\": "app/"
+                    "GenerCodeOrm\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -523,9 +611,9 @@
             "description": "Core Genercode ORM functionality for API builder",
             "support": {
                 "issues": "https://github.com/GenercodeLtd/genercodeorm/issues",
-                "source": "https://github.com/GenercodeLtd/genercodeorm/tree/v2.0.7"
+                "source": "https://github.com/GenercodeLtd/genercodeorm/tree/v2.0.90"
             },
-            "time": "2022-09-26T12:16:20+00:00"
+            "time": "2022-11-09T11:08:58+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -1073,6 +1161,54 @@
                 "source": "https://github.com/laravel/framework"
             },
             "time": "2022-07-29T19:44:19+00:00"
+        },
+        {
+            "name": "illuminate/config",
+            "version": "v9.39.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/config.git",
+                "reference": "92baa45cede73bc2ad8a0a193f9cb3f8bde676a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/illuminate/config/zipball/92baa45cede73bc2ad8a0a193f9cb3f8bde676a9",
+                "reference": "92baa45cede73bc2ad8a0a193f9cb3f8bde676a9",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/collections": "^9.0",
+                "illuminate/contracts": "^9.0",
+                "php": "^8.0.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "9.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Illuminate\\Config\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The Illuminate Config package.",
+            "homepage": "https://laravel.com",
+            "support": {
+                "issues": "https://github.com/laravel/framework/issues",
+                "source": "https://github.com/laravel/framework"
+            },
+            "time": "2022-08-08T17:13:46+00:00"
         },
         {
             "name": "illuminate/console",
@@ -2026,65 +2162,6 @@
                 "source": "https://github.com/jmespath/jmespath.php/tree/2.6.1"
             },
             "time": "2021-06-14T00:11:39+00:00"
-        },
-        {
-            "name": "neomerx/cors-psr7",
-            "version": "v1.0.13",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/neomerx/cors-psr7.git",
-                "reference": "2556e2013f16a55532c95928455257d5b6bbc6e2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/neomerx/cors-psr7/zipball/2556e2013f16a55532c95928455257d5b6bbc6e2",
-                "reference": "2556e2013f16a55532c95928455257d5b6bbc6e2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0",
-                "psr/http-message": "^1.0",
-                "psr/log": "^1.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.0",
-                "phpunit/phpunit": "^5.7",
-                "scrutinizer/ocular": "^1.1",
-                "squizlabs/php_codesniffer": "^3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Neomerx\\Cors\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "neomerx",
-                    "email": "info@neomerx.com"
-                }
-            ],
-            "description": "Framework agnostic (PSR-7) CORS implementation (www.w3.org/TR/cors/)",
-            "homepage": "https://github.com/neomerx/cors-psr7",
-            "keywords": [
-                "Cross Origin Resource Sharing",
-                "Cross-Origin Resource Sharing",
-                "cors",
-                "neomerx",
-                "psr-7",
-                "psr7",
-                "w3.org",
-                "www.w3.org"
-            ],
-            "support": {
-                "issues": "https://github.com/neomerx/cors-psr7/issues",
-                "source": "https://github.com/neomerx/cors-psr7/tree/develop"
-            },
-            "time": "2018-05-23T16:10:11+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -4367,203 +4444,6 @@
                 }
             ],
             "time": "2022-06-27T17:24:16+00:00"
-        },
-        {
-            "name": "tuupola/callable-handler",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tuupola/callable-handler.git",
-                "reference": "0bc7b88630ca753de9aba8f411046856f5ca6f8c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tuupola/callable-handler/zipball/0bc7b88630ca753de9aba8f411046856f5ca6f8c",
-                "reference": "0bc7b88630ca753de9aba8f411046856f5ca6f8c",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1|^8.0",
-                "psr/http-server-middleware": "^1.0"
-            },
-            "require-dev": {
-                "overtrue/phplint": "^1.0",
-                "phpunit/phpunit": "^7.0|^8.0|^9.0",
-                "squizlabs/php_codesniffer": "^3.2",
-                "tuupola/http-factory": "^0.4.0|^1.0",
-                "zendframework/zend-diactoros": "^1.6.0|^2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Tuupola\\Middleware\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mika Tuupola",
-                    "email": "tuupola@appelsiini.net",
-                    "homepage": "https://appelsiini.net/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Compatibility layer for PSR-7 double pass and PSR-15 middlewares.",
-            "homepage": "https://github.com/tuupola/callable-handler",
-            "keywords": [
-                "middleware",
-                "psr-15",
-                "psr-7"
-            ],
-            "support": {
-                "issues": "https://github.com/tuupola/callable-handler/issues",
-                "source": "https://github.com/tuupola/callable-handler/tree/1.1.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/tuupola",
-                    "type": "github"
-                }
-            ],
-            "time": "2020-09-09T08:31:54+00:00"
-        },
-        {
-            "name": "tuupola/cors-middleware",
-            "version": "1.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tuupola/cors-middleware.git",
-                "reference": "87cbbbfad66977ee44d3d3099823923335c02814"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tuupola/cors-middleware/zipball/87cbbbfad66977ee44d3d3099823923335c02814",
-                "reference": "87cbbbfad66977ee44d3d3099823923335c02814",
-                "shasum": ""
-            },
-            "require": {
-                "neomerx/cors-psr7": "^1.0.4",
-                "php": "^7.1|^8.0",
-                "psr/http-message": "^1.0.1",
-                "psr/http-server-middleware": "^1.0",
-                "tuupola/callable-handler": "^1.0",
-                "tuupola/http-factory": "^1.0.2"
-            },
-            "require-dev": {
-                "equip/dispatch": "^2.0",
-                "nyholm/psr7": "^1.5",
-                "overtrue/phplint": "^3.0",
-                "phpstan/phpstan": "^0.12.42",
-                "phpunit/phpunit": "^7.0|^8.0|^9.0",
-                "squizlabs/php_codesniffer": "^3.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Tuupola\\Middleware\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mika Tuupola",
-                    "email": "tuupola@appelsiini.net",
-                    "homepage": "https://appelsiini.net/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "PSR-7 and PSR-15 CORS middleware",
-            "homepage": "https://github.com/tuupola/cors-middleware",
-            "keywords": [
-                "cors",
-                "middleware",
-                "psr-15",
-                "psr-7"
-            ],
-            "support": {
-                "issues": "https://github.com/tuupola/cors-middleware/issues",
-                "source": "https://github.com/tuupola/cors-middleware/tree/1.3.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/tuupola",
-                    "type": "github"
-                }
-            ],
-            "time": "2022-04-14T11:07:11+00:00"
-        },
-        {
-            "name": "tuupola/http-factory",
-            "version": "1.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tuupola/http-factory.git",
-                "reference": "ae3f8fbdd31cf2f1bbe920b38963c5e4d1e9c454"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tuupola/http-factory/zipball/ae3f8fbdd31cf2f1bbe920b38963c5e4d1e9c454",
-                "reference": "ae3f8fbdd31cf2f1bbe920b38963c5e4d1e9c454",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1|^8.0",
-                "psr/http-factory": "^1.0"
-            },
-            "conflict": {
-                "nyholm/psr7": "<1.0"
-            },
-            "provide": {
-                "psr/http-factory-implementation": "^1.0"
-            },
-            "require-dev": {
-                "http-interop/http-factory-tests": "^0.9.0",
-                "overtrue/phplint": "^3.0",
-                "phpunit/phpunit": "^7.0|^8.0|^9.0",
-                "squizlabs/php_codesniffer": "^3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Tuupola\\Http\\Factory\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mika Tuupola",
-                    "email": "tuupola@appelsiini.net",
-                    "homepage": "https://appelsiini.net/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Lightweight autodiscovering PSR-17 HTTP factories",
-            "homepage": "https://github.com/tuupola/http-factory",
-            "keywords": [
-                "http",
-                "psr-17",
-                "psr-7"
-            ],
-            "support": {
-                "issues": "https://github.com/tuupola/http-factory/issues",
-                "source": "https://github.com/tuupola/http-factory/tree/1.4.0"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/tuupola",
-                    "type": "github"
-                }
-            ],
-            "time": "2021-09-14T12:46:25+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

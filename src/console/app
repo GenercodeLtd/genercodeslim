@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+namespace GenerCodeSlim;
+
+/* The console directory should be moved to your document root */
+$composer_autoload = dirname(__DIR__) . "/vendor/autoload.php";
+
+$env_dir = dirname(__DIR__, 2);
+$config_file = null; //change if configs.php is not in the same directory as .env - needs to be full path to configs.php
+
+require_once($composer_autoload);
+
+$container = GenerCodeSetup::build($env_dir, $config_file);
+$app = GenerCodeSetup::buildApp($container);
+$app->run();

@@ -29,8 +29,8 @@ class GenerCodeSlimCors
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
          $response = $handler->handle($request);
         return $response
-        ->withHeader('Access-Control-Allow-Origin', $this->app->config["cors"]["origin"])
-        ->withHeader("Access-Control-Allow-Headers", implode(", ", $this->app->config["cors"]["headers"]))
+        ->withHeader('Access-Control-Allow-Origin', $this->app->config->get("cors.origin"))
+        ->withHeader("Access-Control-Allow-Headers", implode(", ", $this->app->config->get("cors.headers")))
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
         ->withHeader('Access-Control-Allow-Credentials', 'true');
     }

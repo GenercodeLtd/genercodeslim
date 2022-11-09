@@ -19,8 +19,8 @@ class Queue
     public function __construct(Container $app, $profile_factory)
     {
         $this->app = $app;
-        $this->queue = $this->app->config['queue']["sqsarn"];
-        $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
+        $this->queue = $this->app->config->get('queue.sqsarn');
+        $this->aws_config = ["region" => $this->app->config->get('queue.region'), "version"=>"latest"];
         $this->profile_factory = $profile_factory;
     }
 

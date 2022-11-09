@@ -29,9 +29,9 @@ abstract class Job
     {
         $this->app = $app;
         $this->profile = $app->make(\GenerCodeOrm\Profile::class);
-        $this->queue = $this->app->config['queue']["sqsarn"];
-        $this->aws_config = ["region" => $this->app->config['queue']["region"], "version"=>"latest"];
-        $this->is_fifo = $this->app->config["queue"]["fifo"];
+        $this->queue = $this->app->config->get('queue.sqsarn');
+        $this->aws_config = ["region" => $this->app->config->get('queue.region'), "version"=>"latest"];
+        $this->is_fifo = $this->app->config->get("queue.fifo", false);
     }
 
     public function __set($key, $val)
