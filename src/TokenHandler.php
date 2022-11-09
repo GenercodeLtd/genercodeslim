@@ -21,7 +21,7 @@ class TokenHandler
 
 
     function __construct(Container $app) {
-        $this->setConfigs($app->config->token);
+        $this->setConfigs($app->config->get("token"));
     }
 
     public function __get($key)
