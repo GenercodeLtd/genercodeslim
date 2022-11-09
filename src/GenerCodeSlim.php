@@ -203,7 +203,7 @@ class GenerCodeSlim
         $app->group("/user", function (RouteCollectorProxy $group) {
             $group->get("/dictionary", function ($request, $response, $args) {
                 $profile = $this->get(\GenerCodeOrm\Profile::class);
-                $dict = file_get_contents($this->config->repo_root . "/Dictionary/" . $profile->name . ".json");
+                $dict = file_get_contents($this->config->get("repo_root") . "/Dictionary/" . $profile->name . ".json");
                 $response->getBody()->write($dict);
                 return $response
                 ->withHeader('Content-Type', 'application/json');
