@@ -93,7 +93,6 @@ class Queue
                         ]);
 
                     $message = json_decode($msg["Body"]);
-                    var_dump($message);
                     $this->process($message->name, $message->id, $message->profile);
                     
                 }
