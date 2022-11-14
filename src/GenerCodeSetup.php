@@ -23,6 +23,7 @@ class GenerCodeSetup {
         $app->add(new \GenerCodeCmd\MigrationCommand($container));
         $app->add(new \GenerCodeCmd\PublishCommand($container));
         $app->add(new \GenerCodeCmd\UploadCommand($container));
+        $app->add(new \GenerCodeCmd\CdnCommand($container));
         return $app;
     }
 }

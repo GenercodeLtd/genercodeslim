@@ -14,7 +14,7 @@
         "dflydev/fig-cookies": ">=3.0",
         "firebase/php-jwt": ">=6.3",
         "vlucas/phpdotenv": ">=5.4",
-        "genercodeltd/genercodecmd": "^2.0",
+        "genercodeltd/genercodecmd": "^2.0.18",
         "illuminate/config": ">=8.83.1"
     },
     "require-dev": {
