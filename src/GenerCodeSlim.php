@@ -281,11 +281,8 @@ class GenerCodeSlim
 
         $app->group("/dispatch", function (RouteCollectorProxy $group) {
             $group->get("/status/{id}", function (Request $request, Response $response, $args) {
-                $model = $this->get(\GenerCodeOrm\Repository::class);
-                $model->name = "queue";
-                $model->fields = ["progress"];
-                $model->where = ["--id"=>$args['id']];
-                $data = $model->get();
+                $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+                $data = $repoController->getActive("queue", new Fluent(["__fields"=>["progress"], "--id"=>$args["id"]]));
                 $response->getBody()->write(json_encode($data));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
@@ -293,10 +290,9 @@ class GenerCodeSlim
 
 
             $group->delete("/remove/{id}", function (Request $request, Response $response, $args) {
-                $model = $this->get(\GenerCodeOrm\Repository::class);
-                $model->name = "queue";
-                $model->where = ["--id"=>$args['id']];
-                $response->getBody()->write(json_encode($model->delete()));
+                $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+                $results = $modelController->delete("queue", new Fluent(["--id"=>$args["id"]]));
+                $response->getBody()->write(json_encode($results));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
