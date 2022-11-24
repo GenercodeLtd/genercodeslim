@@ -17,6 +17,9 @@ use Psr\Log\LoggerInterface;
 
 class GenerCodeSlim
 {
+
+    protected $profile_factory;
+
     public function create(Container $container)
     {
         AppFactory::setContainer($container);
@@ -32,11 +35,15 @@ class GenerCodeSlim
 
         $container = $app->getContainer();
 
+        $profile_factory = new \PressToJam\ProfileFactory();
+
         $app->add(new UserMiddleware(
             $container,
-            new \PressToJam\ProfileFactory(),
+            $profile_factory,
             $container->make(TokenHandler::class)
         ));
+
+        $this->profile_factory = $profile_factory;
 
 
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
@@ -145,6 +152,14 @@ class GenerCodeSlim
             $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
             echo $data;
             exit;
+        });
+
+        $app->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
+            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            if (!$assetController->exists($args["model"], $args["field"], $args["id"])) {
+                throw new \Exception("Asset doesn't exist");
+            }
+            return $response;
         });
 
 
