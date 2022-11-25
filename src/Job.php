@@ -77,7 +77,7 @@ abstract class Job
 
         $data->validate();
 
-        $id = $model->setFromEntity()->insertGetId($data->toCellNameArr());
+        $id = $model->setFromEntity(true)->insertGetId($data->toCellNameArr());
 
         $client = $this->createClient();
 
