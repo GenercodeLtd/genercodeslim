@@ -19,8 +19,6 @@ use \GenerCodeOrm\Http\Controllers as Controllers;
 class GenerCodeSlim
 {
 
-    protected $profile_factory;
-
     public function create(Container $container)
     {
         AppFactory::setContainer($container);
@@ -43,9 +41,6 @@ class GenerCodeSlim
             $profile_factory,
             $container->make(TokenHandler::class)
         ));
-
-        $this->profile_factory = $profile_factory;
-
 
         $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 

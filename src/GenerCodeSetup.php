@@ -2,6 +2,7 @@
 namespace GenerCodeSlim;
 
 use Symfony\Component\Console\Application;
+use Illuminate\Container\Container;
 
 class GenerCodeSetup {
 
@@ -10,8 +11,13 @@ class GenerCodeSetup {
         $config_dir ??= $env_dir . "/configs.php";
         $configs->load($config_dir);
 
-        $container = new \GenerCodeOrm\GenerCodeContainer();
-        $container->bindConfigs($configs);
+        $container = new Container();
+        $container->instance("config", $configs);
+
+        
+        $gcprovider = new GenerCodeOrm\GenerCodeServiceProvider($container);
+        $gcprovider->register();
+        $container->instance("gcprovider", $gcprovider);
 
         return $container;
     }
