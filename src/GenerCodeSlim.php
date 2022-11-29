@@ -13,6 +13,7 @@ use \Illuminate\Database\Connectors\ConnectionFactory;
 use \Illuminate\Database\DatabaseManager;
 use \Illuminate\FileSystem\FileSystemManager;
 use Psr\Log\LoggerInterface;
+use \GenerCodeOrm\Http\Controllers as Controllers;
 
 
 class GenerCodeSlim
@@ -98,7 +99,7 @@ class GenerCodeSlim
         });
 
         $app->map(['POST', 'PUT', 'DELETE'], '/data/{model}', function (Request $request, Response $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+            $modelController = $this->get(Controllers\ModelController::class);
             $method = $request->getMethod();
             if ($method == "POST") {
                 $results = $modelController->create($args["model"], new Fluent($request->getParsedBody()));
@@ -114,7 +115,7 @@ class GenerCodeSlim
 
 
         $app->put('/data/{model}/resort', function (Request $request, Response $response, $args) {
-            $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+            $modelController = $this->get(Controllers\ModelController::class);
             $results = $modelController->resort($args["model"], new Fluent($request->getParsedBody()));
             $response->getBody()->write(json_encode($results));
             return $response
@@ -125,7 +126,7 @@ class GenerCodeSlim
 
         $app->get('/data/{model}[/{state}]', function (Request $request, Response $response, $args) {
             $state = (isset($args["state"])) ? $args["state"] : "get";
-            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+            $repoController = $this->get(Controllers\RepositoryController::class);
             if ($state == "active") {
                 $results = $repoController->getActive($args["model"], new Fluent($request->getQueryParams()));
                 if (!$results) $results = "{}";
@@ -139,7 +140,7 @@ class GenerCodeSlim
 
         $app->get('/count/{model}', function (Request $request, Response $response, $args) {
             $name = $args['model'];
-            $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+            $repoController = $this->get(Controllers\RepositoryController::class);
             $results = $repoController->count($args["model"], new Fluent($request->getQueryParams()));
             $response->getBody()->write(json_encode($results));
             return $response
@@ -148,14 +149,14 @@ class GenerCodeSlim
 
 
         $app->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
             echo $data;
             exit;
         });
 
         $app->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
-            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $assetController = $this->get(Controllers\AssetController::class);
             if (!$assetController->exists($args["model"], $args["field"], $args["id"])) {
                 throw new \Exception("Asset doesn't exist");
             }
@@ -164,7 +165,7 @@ class GenerCodeSlim
 
 
         $app->post("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
@@ -173,7 +174,7 @@ class GenerCodeSlim
 
 
         $app->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
-            $assetController = $this->get(\GenerCodeOrm\AssetController::class);
+            $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->removeAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
@@ -182,7 +183,7 @@ class GenerCodeSlim
 
 
         $app->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
-            $refController = $this->get(\GenerCodeOrm\ReferenceController::class);
+            $refController = $this->get(Controllers\ReferenceController::class);
             $params = new Fluent($request->getQueryParams());
             $id = (isset($args["id"])) ? $args["id"] : 0;
             $results = $refController->load($args["model"], $args["field"], $id, $params);
@@ -206,7 +207,7 @@ class GenerCodeSlim
         $app->group("/audit", function(RouteCollectorProxy $group) {
             $group->get("/history/{name}/{id}", function($request, $response, $args) {
                 $params = $request->getQueryParams();
-                $audit = $this->get(\GenerCodeOrm\AuditController::class);
+                $audit = $this->get(Controllers\AuditController::class);
                 $obj = $audit->getObjectAt($args["name"], $args["id"], $params["last-published"]);
                 $response->getBody()->write(json_encode($obj));
                 return $response
@@ -225,21 +226,21 @@ class GenerCodeSlim
             });
 
             $group->get("/details", function ($request, $response) {
-                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $profileController = $this->get(Controllers\ProfileController::class);
                 $response->getBody()->write(json_encode($profileController->userDetails()));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
 
             $group->get("/site-map", function ($request, $response) {
-                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $profileController = $this->get(Controllers\ProfileController::class);
                 $response->getBody()->write(json_encode($profileController->getSitemap()));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
             });
 
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
-                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $profileController = $this->get(Controllers\ProfileController::class);
                 $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
                 $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $args["name"], $id);
@@ -258,7 +259,7 @@ class GenerCodeSlim
 
             $group->post('/anon/{name}', function (Request $request, Response $response, $args) {
                 $name = $args['name'];
-                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $profileController = $this->get(Controllers\ProfileController::class);
                 $id = $profileController->createAnon($args["name"]);
                 $tokenHandler = $this->make(TokenHandler::class);
                 $response = $tokenHandler->save($response, $name, $id);
@@ -277,7 +278,7 @@ class GenerCodeSlim
             });
 
             $group->get("/check-user", function (Request $request, Response $response, $args) {
-                $profileController = $this->get(\GenerCodeOrm\ProfileController::class);
+                $profileController = $this->get(Controllers\ProfileController::class);
                 $response->getBody()->write(json_encode($profileController->checkUser()));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
@@ -296,7 +297,7 @@ class GenerCodeSlim
 
         $app->group("/dispatch", function (RouteCollectorProxy $group) {
             $group->get("/status/{id}", function (Request $request, Response $response, $args) {
-                $repoController = $this->get(\GenerCodeOrm\RepositoryController::class);
+                $repoController = $this->get(Controllers\RepositoryController::class);
                 $data = $repoController->getActive("queue", new Fluent(["__fields"=>["progress"], "--id"=>$args["id"]]));
                 $response->getBody()->write(json_encode($data));
                 return $response
@@ -305,7 +306,7 @@ class GenerCodeSlim
 
 
             $group->delete("/remove/{id}", function (Request $request, Response $response, $args) {
-                $modelController = $this->get(\GenerCodeOrm\ModelController::class);
+                $modelController = $this->get(Controllers\ModelController::class);
                 $results = $modelController->delete("queue", new Fluent(["--id"=>$args["id"]]));
                 $response->getBody()->write(json_encode($results));
                 return $response
