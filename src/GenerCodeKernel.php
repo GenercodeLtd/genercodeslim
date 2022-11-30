@@ -50,8 +50,19 @@ class GenerCodeKernel {
         }
       
 
+        $container->singleton(\Illuminate\Database\DatabaseManager::class, function ($app) {
+            return $app->make('db');
+        });
+
+
+        $container->singleton(\Illuminate\Database\Connection::class, function($app) {
+            return $app->make('db')->connection();
+        });
+
         foreach($active as $a) {
-            $a->boot();
+            if (method_exists($a, "boot")) {
+                $a->boot();
+            }
         }
 
         return $container;

@@ -34,8 +34,7 @@ class UserMiddleware {
             $profile->id = $user->getAuthIdentifier();
         }
 
-        $this->app->instance(Profile::class, $profile);
-        $this->app->instance(Factory::class, $profile->factory);
+        $this->app->instance("profile", $profile);
         return $handler->handle($request);
     }
 }

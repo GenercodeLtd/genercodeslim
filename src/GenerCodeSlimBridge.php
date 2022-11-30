@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use \GenerCodeOrm\Http\Controllers as Controllers;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 
 class GenerCodeSlimBridge
@@ -31,14 +32,14 @@ class GenerCodeSlimBridge
         $container->instance(App::class, $this->app);
 
         $serverRequestCreator = ServerRequestCreatorFactory::create();
-        $psrRequest = $serverRequestCreator->createServerRequestFromGlobals();
+        $this->request = $serverRequestCreator->createServerRequestFromGlobals();
 
-        $container->instance(Request::class, $psrRequest);
+        $container->instance(Request::class, $this->request);
 
-        $httpFoundationFactory = new HttpFoundationFactory();
-        $this->request = $httpFoundationFactory->createRequest($psrRequest);
+        $httpFoundationFactory = new GenerCodeSymfonyBridge();
+        $http_request = $httpFoundationFactory->createRequest($this->request);
 
-        $container->instance("request", $this->request);
+        $container->instance("request", $http_request);
     }
 
     static function setEnvDir($dir) {
@@ -51,7 +52,7 @@ class GenerCodeSlimBridge
 
 
     public function __call($method, $args) {
-        return call_user_func_array($this->app->$method, $args);
+        return call_user_func_array([$this->app, $method], $args);
     }
 
 
@@ -78,14 +79,14 @@ class GenerCodeSlimBridge
             bool $logErrorDetails,
             ?LoggerInterface $logger = null
         ) use ($app) {
-            $container = $this->app->getContainer();
+            $container = $app->getContainer();
             if ($logger) {
                 $logger->error($exception->getMessage());
             }
 
-            $payload = ['error' => $exception->getMessage(), "file"=>$exception->getFile(), "line"=>$exception->getLine()];
+            $payload = ['error' => $exception->getMessage(), "file"=>$exception->getFile(), "line"=>$exception->getLine(), "trace"=>$exception->getTrace()];
 
-            $response = $this->app->getResponseFactory()->createResponse();
+            $response = $app->getResponseFactory()->createResponse();
             $response->getBody()->write(
                 json_encode($payload, JSON_UNESCAPED_UNICODE)
             );
@@ -263,8 +264,6 @@ class GenerCodeSlimBridge
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
                 $profileController = $this->get(Controllers\ProfileController::class);
                 $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
-                $tokenHandler = $this->make(TokenHandler::class);
-                $response = $tokenHandler->save($response, $args["name"], $id);
                 $response->getBody()->write(json_encode(["--id"=>1]));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
