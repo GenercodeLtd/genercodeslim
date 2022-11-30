@@ -17,8 +17,25 @@ class UserMiddleware {
 
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
 
-        $provider = $this->app->get("gcprovider");
-        $provider->boot();
+        if (!$this->app->config->has("factory")) {
+            throw new \PtjException("Factory needs to be set in the configs");
+        }
+        $factory_name = $this->app->config->get("factory");
+        $factory = new $factory_name();
+
+        $auth = $this->app->get("auth");
+        $user = $auth->user();
+
+        if (!$user) {
+            $profile = ($factory)("public");
+            $profile->id = 0;
+        } else {
+            $profile = ($factory)($user->type);
+            $profile->id = $user->getAuthIdentifier();
+        }
+
+        $this->app->instance(Profile::class, $profile);
+        $this->app->instance(Factory::class, $profile->factory);
         return $handler->handle($request);
     }
 }
