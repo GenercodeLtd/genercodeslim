@@ -41,6 +41,15 @@ class GenerCodeSlimBridge
         $container->instance("request", $this->request);
     }
 
+    static function setEnvDir($dir) {
+        GenerCodeKernel::setEnvDir($dir);
+    }
+
+    static function setConfigDir($dir) {
+        GenerCodeKernel::setConfigDir($dir);
+    }
+
+
     public function __call($method, $args) {
         return call_user_func_array($this->app->$method, $args);
     }

@@ -45,7 +45,7 @@ class GenerCodeKernel {
 
         foreach($this->providers as $prov) {
             $p = new $prov($container);
-            $p->pregister();
+            $p->register();
             $active[$prov] = $p;
         }
       
