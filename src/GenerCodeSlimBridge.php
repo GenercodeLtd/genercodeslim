@@ -40,6 +40,7 @@ class GenerCodeSlimBridge
         $http_request = $httpFoundationFactory->createRequest($this->request);
 
         $container->instance("request", $http_request);
+        $container->instance(\Illuminate\Contracts\Container\Container::class, $container);
     }
 
     static function setEnvDir($dir) {
@@ -68,6 +69,11 @@ class GenerCodeSlimBridge
             $container
         ));
 
+
+        $this->app->add(new Middleware\LaravelPsr15Bridge($container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
+        $this->app->add(new Middleware\LaravelPsr15Bridge($container->make(\Illuminate\Session\Middleware\StartSession::class)));
+      //  $this->app->add($container->make(\App\Http\Middleware\VerifyCsrfToken::class));
+     
         $errorMiddleware = $this->app->addErrorMiddleware(true, true, true);
 
         $app = $this->app;

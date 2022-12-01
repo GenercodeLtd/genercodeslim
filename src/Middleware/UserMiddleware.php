@@ -1,5 +1,5 @@
 <?php
-namespace GenerCodeSlim;
+namespace GenerCodeSlim\Middleware;
 
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Psr\Http\Message\ServerRequestInterface as Request;

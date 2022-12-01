@@ -59,6 +59,11 @@ class GenerCodeKernel {
             return $app->make('db')->connection();
         });
 
+
+        $container->bind(\Illuminate\Contracts\Cookie\QueueingFactory::class, function($app) {
+            return new \Illuminate\Cookie\CookieJar();
+        });
+
         foreach($active as $a) {
             if (method_exists($a, "boot")) {
                 $a->boot();
