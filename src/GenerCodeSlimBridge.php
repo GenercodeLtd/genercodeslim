@@ -65,7 +65,7 @@ class GenerCodeSlimBridge
 
         $container = $this->app->getContainer();
 
-        $this->app->add(new UserMiddleware(
+        $this->app->add(new Middleware\UserMiddleware(
             $container
         ));
 
