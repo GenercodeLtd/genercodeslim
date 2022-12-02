@@ -28,7 +28,7 @@ abstract class Job
     public function __construct(Container $app)
     {
         $this->app = $app;
-        $this->profile = $app->make(\GenerCodeOrm\Profile::class);
+        $this->profile = $app->get("profile");
         $this->queue = $this->app->config->get('queue.sqsarn');
         $this->aws_config = ["region" => $this->app->config->get('queue.region'), "version"=>"latest"];
         $this->is_fifo = $this->app->config->get("queue.fifo", false);
