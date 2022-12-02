@@ -88,7 +88,7 @@ class GenerCodeSlimBridge
 
         $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Session\Middleware\StartSession::class)));
         $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
-        
+        $this->app->add(new Middleware\JsonContent());
       //  $this->app->add($container->make(\App\Http\Middleware\VerifyCsrfToken::class));
      
         $errorMiddleware = $this->app->addErrorMiddleware(true, true, true);
