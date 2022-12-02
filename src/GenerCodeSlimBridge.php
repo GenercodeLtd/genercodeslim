@@ -27,19 +27,36 @@ class GenerCodeSlimBridge
         $container = $kernel->buildContainer();
 
         AppFactory::setContainer($container);
-        $this->app = AppFactory::create();
+        $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
+        $this->app = AppFactory::create($factory);
 
         $container->instance(App::class, $this->app);
 
-        $serverRequestCreator = ServerRequestCreatorFactory::create();
-        $this->request = $serverRequestCreator->createServerRequestFromGlobals();
+        $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
+            $factory, // ServerRequestFactory
+            $factory, // UriFactory
+            $factory, // UploadedFileFactory
+            $factory  // StreamFactory
+        );
 
-        $container->instance(Request::class, $this->request);
+        $this->request = $creator->fromGlobals();
 
-        $httpFoundationFactory = new GenerCodeSymfonyBridge();
-        $http_request = $httpFoundationFactory->createRequest($this->request);
+        //$httpFoundationFactory = new GenerCodeSymfonyBridge();
+        //$http_request = $httpFoundationFactory->createRequest($this->request);
+        //$container->instance("request", $http_request);
 
-        $container->instance("request", $http_request);
+        /*$container->instance(Request::class, $this->request);
+        $container->singleton(\Symfony\Component\HttpFoundation\Request::class, function($app) {
+            return $app->get(Request::class);
+        });
+
+        
+        
+        $container->singleton(\Illuminate\Http\Request::class, function($app) {
+            return $app->get("request");
+        });
+        
+        */
         $container->instance(\Illuminate\Contracts\Container\Container::class, $container);
     }
 
@@ -69,9 +86,9 @@ class GenerCodeSlimBridge
             $container
         ));
 
-
-        $this->app->add(new Middleware\LaravelPsr15Bridge($container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
-        $this->app->add(new Middleware\LaravelPsr15Bridge($container->make(\Illuminate\Session\Middleware\StartSession::class)));
+        $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Session\Middleware\StartSession::class)));
+        $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
+        
       //  $this->app->add($container->make(\App\Http\Middleware\VerifyCsrfToken::class));
      
         $errorMiddleware = $this->app->addErrorMiddleware(true, true, true);
@@ -269,10 +286,7 @@ class GenerCodeSlimBridge
 
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
                 $profileController = $this->get(Controllers\ProfileController::class);
-                $id = $profileController->login($args["name"], new Fluent($request->getParsedBody()));
-                $response->getBody()->write(json_encode(["--id"=>1]));
-                return $response
-                ->withHeader('Content-Type', 'application/json');
+                return $profileController->login($request, $response, $args["name"]);
             });
 
             $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {
