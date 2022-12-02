@@ -23,15 +23,19 @@ class UserMiddleware {
         $factory_name = $this->app->config->get("factory");
         $factory = new $factory_name();
 
-        $auth = $this->app->get("auth");
-        $user = $auth->user();
+        $irequest = $this->app["request"];
 
-        if (!$user) {
+        $auth = $this->app->get("auth");
+        $cookie = $irequest->cookie($auth->guard()->getName());
+
+
+        if (!$cookie) {
             $profile = ($factory)("public");
             $profile->id = 0;
         } else {
+            $user = json_decode($cookie);
             $profile = ($factory)($user->type);
-            $profile->id = $user->getAuthIdentifier();
+            $profile->id = $user->id;
         }
 
         $this->app->instance("profile", $profile);

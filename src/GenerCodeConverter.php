@@ -17,21 +17,21 @@ class GenerCodeConverter {
 
     
     public function convertLaravelRequest($request) {
-        return $this->http_foundation->createRequest($response);
+        return $this->http_foundation->createRequest($request);
     }
 
 
-    public function convertLaravelResponse($request) {
+    public function convertLaravelResponse($response) {
         return $this->http_foundation->createResponse($response);
     }
 
 
-    public function convertToPsrRequest($request) {
+    public function convertPsrRequest($request) {
         return $this->psr_http->createRequest($request);
     }
 
 
-    public function convertToPsrResponse($response) {
+    public function convertPsrResponse($response) {
         return $this->psr_http->createResponse($response);
     }
 }

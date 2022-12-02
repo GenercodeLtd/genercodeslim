@@ -37,6 +37,6 @@ class LaravelPsr15Wrapper
         });
 
     
-        return $converter->convertPsrReponse($response);
+        return $converter->convertPsrResponse($response);
     }
 }
