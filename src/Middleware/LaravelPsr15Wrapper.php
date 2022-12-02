@@ -23,20 +23,20 @@ class LaravelPsr15Wrapper
     
     public function __invoke($request, $handler)
     {
-        $httpFoundationFactory = new \GenerCodeSlim\GenerCodeSymfonyBridge();
-        $http_request = $httpFoundationFactory->createRequest($request);
+        $converter = $this->app->make(\GenerCodeSlim\GenerCodeConverter::class);
+        $http_request = $converter->convertLaravelRequest($request);
 
         $this->app->instance("request", $http_request);
 
-        $psr17Factory = new Psr17Factory();
-        $response = $this->middleware->handle($http_request, function($request) use ($handler, $psr17Factory, $httpFoundationFactory) {
-            $psrHttpFactory = new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);
-            return $httpFoundationFactory->createResponse($handler->handle($psrHttpFactory->createRequest($request)));
+        $response = $this->middleware->handle($http_request, function($request) use ($handler, $converter) {
+            return $converter->convertLaravelResponse(
+                $handler->handle(
+                    $converter->convertPsrRequest($request)
+                )
+            );
         });
 
-        
-        $psrHttpFactory = new PsrHttpFactory($psr17Factory, $psr17Factory, $psr17Factory, $psr17Factory);
-        $psrResponse = $psrHttpFactory->createResponse($response);
-        return $psrResponse;
+    
+        return $converter->convertPsrReponse($response);
     }
 }

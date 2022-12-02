@@ -285,8 +285,11 @@ class GenerCodeSlimBridge
             });
 
             $group->post('/login/{name}', function (Request $request, Response $response, $args) {
+                $converter = $this->make(GenerCodeConverter::class);
+                
                 $profileController = $this->get(Controllers\ProfileController::class);
-                return $profileController->login($request, $response, $args["name"]);
+                $response = $profileController->login($converter->convertLaravelRequest($request), $converter->convertLaravelResponse($response), $args["name"]);
+                return $converter->convertPsrResponse($response);
             });
 
             $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {

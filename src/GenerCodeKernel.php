@@ -49,6 +49,10 @@ class GenerCodeKernel {
             $active[$prov] = $p;
         }
       
+        $container->singleton(GenerCodeConverter::class, function($app) {
+            $cls = GenerCodeConverter::class;
+            return new $cls();
+        });
 
         $container->singleton(\Illuminate\Database\DatabaseManager::class, function ($app) {
             return $app->make('db');
