@@ -77,14 +77,4 @@ class GenerCodeKernel {
         return $container;
     }
 
-    static function buildApp(\GenerCodeOrm\GenerCodeContainer $container) {
-        $app = new Application();
-        $app->add(new \GenerCodeCmd\DictionaryCommand($container));
-        $app->add(new \GenerCodeCmd\DownloadCommand($container));
-        $app->add(new \GenerCodeCmd\MigrationCommand($container));
-        $app->add(new \GenerCodeCmd\PublishCommand($container));
-        $app->add(new \GenerCodeCmd\UploadCommand($container));
-        $app->add(new \GenerCodeCmd\CdnCommand($container));
-        return $app;
-    }
 }
