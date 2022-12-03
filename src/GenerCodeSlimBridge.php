@@ -43,7 +43,7 @@ class GenerCodeSlimBridge
 
         $converter = new GenerCodeConverter();
 
-        $irequest = $converter->convetLaravelRequest($this->request);
+        $irequest = $converter->convertLaravelRequest($this->request);
         $container->instance("illu_request");
 
         //$httpFoundationFactory = new GenerCodeSymfonyBridge();
