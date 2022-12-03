@@ -17,7 +17,7 @@ class GenerCodeSymfonyBridge extends HttpFoundationFactory {
 
         //__construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
         
-        $files = array_filter($rqeuest->files->all());
+        $files = array_filter($request->files->all());
         $irequest = new Request();
         $irequest->initialize(
             $request->query->all(),
