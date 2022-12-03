@@ -16,10 +16,6 @@ class GenerCodeSymfonyBridge extends HttpFoundationFactory {
     }
 
 
-
-    /**
-     * {@inheritdoc}
-     */
     public function createResponse(ResponseInterface $psrResponse, bool $streamed = false)
     {
         $response = parent::createResponse($psrResponse, $streamed);
