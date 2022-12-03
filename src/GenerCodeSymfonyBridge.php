@@ -4,6 +4,8 @@ namespace GenerCodeSlim;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 
 class GenerCodeSymfonyBridge extends HttpFoundationFactory {
