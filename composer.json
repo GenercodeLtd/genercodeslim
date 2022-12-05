@@ -24,7 +24,7 @@
         "illuminate/auth": ">=8.83.1",
         "illuminate/session": ">=8.83.1",
         "illuminate/events": ">=8.83.1",
-        "symfony/http-foundation": "^6.1",
+        "symfony/http-foundation": ">=5.4.16",
         "nyholm/psr7": "^1.5"
     },
     "require-dev": {
