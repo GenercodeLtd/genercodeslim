@@ -334,11 +334,9 @@ class GenerCodeSlimBridge
 
 
             $group->post("/logout", function (Request $request, Response $response, $args) {
-                $tokenHandler = $this->get(TokenHandler::class);
-                $response = $tokenHandler->logout($response);
-                $response->getBody()->write(json_encode("success"));
-                return $response
-                ->withHeader('Content-Type', 'application/json');
+                $profileController = $this->get(Controllers\ProfileController::class);
+                $response = $profileController->logout($converter->convertLaravelRequest($request), $converter->convertLaravelResponse($response), $args["name"]);
+                return $converter->convertPsrResponse($response);
             });
         });
 
