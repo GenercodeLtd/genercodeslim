@@ -334,6 +334,7 @@ class GenerCodeSlimBridge
 
 
             $group->post("/logout", function (Request $request, Response $response, $args) {
+                $converter = $this->make(GenerCodeConverter::class);
                 $profileController = $this->get(Controllers\ProfileController::class);
                 $response = $profileController->logout($converter->convertLaravelRequest($request), $converter->convertLaravelResponse($response), $args["name"]);
                 return $converter->convertPsrResponse($response);
