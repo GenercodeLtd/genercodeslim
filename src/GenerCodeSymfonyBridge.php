@@ -36,7 +36,7 @@ class GenerCodeSymfonyBridge extends HttpFoundationFactory {
     public function createResponse(ResponseInterface $psrResponse, bool $streamed = false)
     {
         $response = parent::createResponse($psrResponse, $streamed);
-        return new Response($response->getContent(), $response->getStatusCode(), $response->headers);
+        return new Response($response->getContent(), $response->getStatusCode(), $response->headers->all());
     }
 
 }
