@@ -18,7 +18,7 @@ class UserMiddleware {
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
 
         if (!$this->app->config->has("factory")) {
-            throw new \PtjException("Factory needs to be set in the configs");
+            throw new \Exception("Factory needs to be set in the configs");
         }
         $factory_name = $this->app->config->get("factory");
         $factory = new $factory_name();
