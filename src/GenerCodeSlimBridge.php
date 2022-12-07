@@ -268,7 +268,7 @@ class GenerCodeSlimBridge
 
         $this->app->group("/user", function (RouteCollectorProxy $group) {
             $group->get("/dictionary", function ($request, $response, $args) {
-                $profile = $this->get(\GenerCodeOrm\Profile::class);
+                $profile = $this->get("profile");
                 $dict = file_get_contents($this->config->get("dictionary.root") . $profile->name . ".json");
                 $response->getBody()->write($dict);
                 return $response
