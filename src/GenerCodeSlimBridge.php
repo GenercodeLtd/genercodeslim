@@ -21,6 +21,7 @@ class GenerCodeSlimBridge
 
     protected $app;
     protected $request;
+    protected $middleware = [];
 
     public function __construct() {
         $kernel = new GenerCodeKernel();
@@ -78,11 +79,19 @@ class GenerCodeSlimBridge
         return call_user_func_array([$this->app, $method], $args);
     }
 
+    public function addMiddleware($middleware) {
+        $this->middleware[] = $middleware;
+    }
+
 
     public function initMiddleware()
     {
         $this->app->addBodyParsingMiddleware();
         $this->app->addRoutingMiddleware();
+
+        foreach($this->middleware as $mware) {
+            $this->app->add($mware);
+        }
 
 
         $container = $this->app->getContainer();
