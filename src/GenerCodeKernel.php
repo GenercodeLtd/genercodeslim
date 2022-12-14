@@ -65,7 +65,16 @@ class GenerCodeKernel {
 
 
         $container->bind(\Illuminate\Contracts\Cookie\QueueingFactory::class, function($app) {
-            return new \Illuminate\Cookie\CookieJar();
+            return $app->get("cookie");
+        });
+
+        $container->bind(\Illuminate\Contracts\Session\Session::class, function($app) {
+            return $app->get("session");
+        });
+
+
+        $container->bind(\Illuminate\Session\SessionManager::class, function($app) {
+            return $app->get("session");
         });
 
         foreach($active as $a) {
