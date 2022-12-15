@@ -267,14 +267,24 @@ class GenerCodeSlimBridge
         });
 
         $this->app->group("/audit", function(RouteCollectorProxy $group) {
+          
             $group->get("/history/{name}/{id}", function($request, $response, $args) {
                 $params = $request->getQueryParams();
                 $audit = $this->get(Controllers\AuditController::class);
-                $obj = $audit->getObjectAt($args["name"], $args["id"], $params["last-published"]);
+                $obj = $audit->getObjectAt($args["name"], $args["id"], $params["date"]);
                 $response->getBody()->write(json_encode($obj));
-                return $response
-                ->withHeader("Content-Type", "application/json");
+                return $response;
             });
+
+
+            $group->get("/has-history/{name}/{id}", function($request, $response, $args) {
+                $params = $request->getQueryParams();
+                $audit = $this->get(Controllers\AuditController::class);
+                $audit->hasChangeSince($args["name"], $args["id"], $params["date"]);
+                $response->getBody()->write(json_encode($obj));
+                return $response;
+            });
+
         });
 
 
