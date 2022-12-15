@@ -22,6 +22,9 @@ class Queue
         $this->queue = $this->app->config->get('queue.sqsarn');
         $this->aws_config = ["region" => $this->app->config->get('queue.region'), "version"=>"latest"];
         $this->profile_factory = $profile_factory;
+
+        $factory = new \PressToJam\EntityFactory();
+        $this->app->instance("entity_factory", $factory);
     }
 
     public function __set($key, $val)
@@ -41,7 +44,7 @@ class Queue
     public function processUser($configs) {
         $profile = ($this->profile_factory)($configs->name);
         $profile->id = $configs->id;
-        $this->app->bindUserDependencies($profile);
+        $this->app->instance("profile", $profile);
     }
 
 
@@ -64,7 +67,7 @@ class Queue
             $job->save();
         } catch(\Exception $e) {
             $job->progress = "FAILED";
-            $job->message = $e->getMessage();
+            $job->message = $e->getMessage() . " at " . $e->getFile() . ": " . $e->getLine();
             $job->save();
         }
     }
