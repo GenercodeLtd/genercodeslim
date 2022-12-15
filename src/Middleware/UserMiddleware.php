@@ -26,14 +26,13 @@ class UserMiddleware {
         $irequest = $this->app["request"];
 
         $auth = $this->app->get("auth");
-        $cookie = $irequest->cookie($auth->guard()->getName());
+        $user = $auth->user();
+     
 
-
-        if (!$cookie) {
+        if (!$user) {
             $profile = ($factory)("public");
             $profile->id = 0;
         } else {
-            $user = json_decode($cookie);
             $profile = ($factory)($user->type);
             $profile->id = $user->id;
         }
