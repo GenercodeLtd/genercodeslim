@@ -171,8 +171,7 @@ class GenerCodeSlimBridge
                 $results = $modelController->delete($args["model"], new Fluent($request->getParsedBody()));
             }
             $response->getBody()->write(json_encode($results));
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         });
 
 
@@ -180,8 +179,7 @@ class GenerCodeSlimBridge
             $modelController = $this->get(Controllers\ModelController::class);
             $results = $modelController->resort($args["model"], new Fluent($request->getParsedBody()));
             $response->getBody()->write(json_encode($results));
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         });
 
 
@@ -192,13 +190,18 @@ class GenerCodeSlimBridge
             if ($state == "active") {
                 $results = $repoController->getActive($args["model"], new Fluent($request->getQueryParams()));
                 if (!$results) $results = "{}";
+            } else if ($state == "first") {
+                $arr = new Fluent($request->getQueryParams());
+                $arr["__fields"] = ["--id"];
+                $arr["__limit"] = 1;
+                $results = $repoController->get($args["model"], $arr);
             } else {
                 $results = $repoController->get($args["model"], new Fluent($request->getQueryParams()));
             }
             $response->getBody()->write(json_encode($results, JSON_INVALID_UTF8_SUBSTITUTE));
-            return $response
-            ->withHeader('Content-Type', 'application/json');
+            return $response;
         });
+
 
         $this->app->get('/count/{model}', function (Request $request, Response $response, $args) {
             $name = $args['model'];
