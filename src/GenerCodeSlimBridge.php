@@ -64,6 +64,9 @@ class GenerCodeSlimBridge
         
         */
         $container->instance(\Illuminate\Contracts\Container\Container::class, $container);
+    
+        //set cookies same site
+        $container["cookie"]->setDefaultPathAndDomain("/", null, true, "none");
     }
 
     static function setEnvDir($dir) {
