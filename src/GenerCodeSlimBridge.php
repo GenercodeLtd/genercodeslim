@@ -175,6 +175,14 @@ class GenerCodeSlimBridge
         });
 
 
+        $this->app->post('/bulk/{model}', function (Request $request, Response $response, $args) {
+            $modelController = $this->get(Controllers\ModelController::class);
+            $results = $modelController->importFromCSV($args["model"], new Fluent($request->getParsedBody()));
+            $response->getBody()->write(json_encode($results));
+            return $response;
+        });
+
+
         $this->app->put('/data/{model}/resort', function (Request $request, Response $response, $args) {
             $modelController = $this->get(Controllers\ModelController::class);
             $results = $modelController->resort($args["model"], new Fluent($request->getParsedBody()));
