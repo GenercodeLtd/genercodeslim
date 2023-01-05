@@ -267,16 +267,6 @@ class GenerCodeSlimBridge
 
 
 
-
-
-        $this->app->map(["POST", "PUT"], "/import/{name}", function ($request, $response, $args) {
-            return $response;
-        });
-
-        $this->app->map(["POST", "DELETE"], "/bulk/{name}", function ($request, $response, $args) {
-            return $response;
-        });
-
         $this->app->group("/audit", function(RouteCollectorProxy $group) {
           
             $group->get("/history/{name}/{id}", function($request, $response, $args) {
