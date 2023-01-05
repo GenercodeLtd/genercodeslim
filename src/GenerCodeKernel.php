@@ -14,7 +14,8 @@ class GenerCodeKernel {
         \Illuminate\Hashing\HashServiceProvider::class,
         \Illuminate\Session\SessionServiceProvider::class,
         \Illuminate\Cookie\CookieServiceProvider::class,
-        \Illuminate\Events\EventServiceProvider::class
+        \Illuminate\Events\EventServiceProvider::class,
+        \Illuminate\Queue\QueueServiceProvider::class
         ];
 
     static $env_dir;

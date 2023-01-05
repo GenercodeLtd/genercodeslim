@@ -19,4 +19,10 @@ $app->add(new \GenerCodeCmd\MigrationCommand($container));
 $app->add(new \GenerCodeCmd\PublishCommand($container));
 $app->add(new \GenerCodeCmd\UploadCommand($container));
 $app->add(new \GenerCodeCmd\CdnCommand($container));
+$app->add(new \GenerCodeCmd\QueueWorkerCommand($container));
+
+$listen = new \Illuminate\Queue\Console\ListenCommand();
+$listen->setLaravel($container);
+$app->add($listen);
+
 $app->run();

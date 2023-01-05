@@ -11,16 +11,13 @@ use Aws\Exception\AwsException;
 use \GenerCodeOrm\Model;
 use \GenerCodeOrm\Profile;
 
-abstract class Job
+abstract class Job extends \Illuminate\Queue\Jobs\Job 
 {
 
     protected Container $app;
     protected \GenerCodeOrm\Profile $profile;
-    protected $aws_config;
-    protected $queue;
     protected $data;
-    protected $configs = [];
-    protected $progress;
+    protected $progress = "pending";
     protected $message = "";
     protected $id = 0;
     protected $is_fifo = false;
@@ -28,10 +25,12 @@ abstract class Job
     public function __construct(Container $app)
     {
         $this->app = $app;
-        $this->profile = $app->get("profile");
-        $this->queue = $this->app->config->get('queue.sqsarn');
-        $this->aws_config = ["region" => $this->app->config->get('queue.region'), "version"=>"latest"];
-        $this->is_fifo = $this->app->config->get("queue.fifo", false);
+        $this->profile = new \GenerCodeOrm\Profile();
+        if ($app->has("profile")) {
+            $oprofile = $app->get("profile");
+            $this->profile->name = $oprofile->name;
+            $this->profile->id = $oprofile->id;
+        }
     }
 
     public function __set($key, $val)
@@ -45,58 +44,34 @@ abstract class Job
         if (property_exists($this, $key)) return $this->$key;
     }
 
-    function createClient() {
-        return new SqsClient($this->aws_config);
+    public function getJobId() {
+        return $this->id;
     }
+
+    public function getRawBody() {
+        return $this->data;
+    }
+
 
     function getModel() {
         return $this->app->makeWith(Model::class, ["name"=>"queue"]);
     }
 
 
-    function addToQueue() {
-        $name = get_class($this);
-        $model = $this->getModel();
-        
-        $root = $model->root;
-        $params  = [
-            "user-login-id"=>$this->profile->id,
-            "name"=>$name,
-            "data"=>json_encode($this->data),
-            "configs"=>json_encode($this->configs),
-            "progress"=>"PENDING"
+    
+    function __serialize() {
+        $this->id = $this->save();
+        return [
+            "id" => $this->id,
+            "user-profile"=>["name"=>$this->profile->name, "id"=>$this->profile->id]
         ];
-
-        $data = new \GenerCodeOrm\DataSet($model);
-        foreach($model->root->cells as $alias=>$cell) {
-            if(isset($params[$alias])) {
-                $bind = new \GenerCodeOrm\Binds\SimpleBind($cell, $params[$alias]);
-                $data->addBind($alias, $bind);
-            }
-        }
-
-        $data->validate();
-
-        $id = $model->setFromEntity(true)->insertGetId($data->toCellNameArr());
-
-        $client = $this->createClient();
-
-        $params = [
-            'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "profile"=>["name"=>$this->profile->name, "id"=>$this->profile->id]]),
-            'QueueUrl' => $this->queue
-        ];
-
-        if (!$this->is_fifo) {
-            $params["DelaySeconds"] = 10;
-        } else {
-            $params["MessageDeduplicationId"] = $name . "_" . $id;
-            $params["MessageGroupId"] = $name;
-        }
+    }
 
 
-        $client->sendMessage($params);
-       
-        return $id;
+    function __unserialize($data) {
+        $this->id = $data["id"];
+        $this->profile->name = $data["user-profile"]["name"];
+        $this->profile->id = $data["user-profile"]["id"];
     }
 
 
@@ -108,7 +83,6 @@ abstract class Job
         ->get()
         ->first();
         $this->data = new Fluent(json_decode($data->data));
-        $this->configs = json_decode($data->configs);
         $this->progress = $data->progress;
     }
 
@@ -131,12 +105,46 @@ abstract class Job
     }
 
 
-    public function processConfigs($configs) {
-        $this->configs = $configs;
+    function handle() {
+        $this->load();
+        try {
+            $this->process();
+            $this->progress = "PROCESSED";
+            $this->save();
+        } catch(\Exception $e) {
+            $this->progress = "FAILED";
+            $this->messge = $e->getMessge();
+            $this->save();
+        }
     }
 
-    abstract public function process();
 
-    abstract public function dispatch($data);
+    function dispatch() {
+        $model = $this->getModel();
+        $root = $model->root;
+        $params  = [
+            "user-login-id"=>$this->profile->id,
+            "name"=>$this->profile->name,
+            "data"=>json_encode($this->data),
+            "progress"=>"PENDING"
+        ];
 
+        $data = new \GenerCodeOrm\DataSet($model);
+        foreach($model->root->cells as $alias=>$cell) {
+            if(isset($params[$alias])) {
+                $bind = new \GenerCodeOrm\Binds\SimpleBind($cell, $params[$alias]);
+                $data->addBind($alias, $bind);
+            }
+        }
+
+        $data->validate();
+
+        $this->id = $model->setFromEntity(true)->insertGetId($data->toCellNameArr());
+
+        $queue = $app->get("queue");
+        $queue->popOn($job);
+        return $this->id;
+    }
+
+    abstract function process();
 }

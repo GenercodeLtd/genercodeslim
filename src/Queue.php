@@ -8,7 +8,7 @@ use Illuminate\Support\Fluent;
 use Aws\Sqs\SqsClient;
 use Aws\Exception\AwsException;
 
-class Queue
+class Queue extends \Illuminate\Queue
 {
  
     protected $aws_config;
@@ -41,10 +41,58 @@ class Queue
         }
     }
 
+    function getModel() {
+        return $this->app->makeWith(Model::class, ["name"=>"queue"]);
+    }
+
     public function processUser($configs) {
         $profile = ($this->profile_factory)($configs->name);
         $profile->id = $configs->id;
         $this->app->instance("profile", $profile);
+    }
+
+    function addToQueue() {
+        $name = get_class($this);
+        $model = $this->getModel();
+        
+        $root = $model->root;
+        $params  = [
+            "user-login-id"=>$this->profile->id,
+            "name"=>$name,
+            "data"=>json_encode($this->data),
+            "progress"=>"PENDING"
+        ];
+
+        $data = new \GenerCodeOrm\DataSet($model);
+        foreach($model->root->cells as $alias=>$cell) {
+            if(isset($params[$alias])) {
+                $bind = new \GenerCodeOrm\Binds\SimpleBind($cell, $params[$alias]);
+                $data->addBind($alias, $bind);
+            }
+        }
+
+        $data->validate();
+
+        $id = $model->setFromEntity(true)->insertGetId($data->toCellNameArr());
+
+        $client = $this->createClient();
+
+        $params = [
+            'MessageBody' => json_encode(["id"=>$id, "name"=>$name, "profile"=>["name"=>$this->profile->name, "id"=>$this->profile->id]]),
+            'QueueUrl' => $this->queue
+        ];
+
+        if (!$this->is_fifo) {
+            $params["DelaySeconds"] = 10;
+        } else {
+            $params["MessageDeduplicationId"] = $name . "_" . $id;
+            $params["MessageGroupId"] = $name;
+        }
+
+        $client= $this->app->make("queueworker");
+        $client->sendMessage($this);
+       
+        return $id;
     }
 
 
