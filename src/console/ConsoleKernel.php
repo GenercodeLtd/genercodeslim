@@ -483,13 +483,7 @@ class ConsoleKernel implements KernelContract
     {
         $this->app[ExceptionHandler::class]->renderForConsole($output, $e);
     }
-}
 
-
-    protected function schedule(Schedule $schedule)
-    {
-        // $schedule->command('inspire')->hourly();
-    }
 
 
     protected function registerCommand($cls) {
@@ -497,10 +491,5 @@ class ConsoleKernel implements KernelContract
         $app->addCommand($obj);
     }
 
-    /**
-     * Register the commands for the application.
-     *
-     * @return void
-     */
 
 }
