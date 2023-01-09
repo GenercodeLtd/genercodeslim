@@ -4,13 +4,11 @@ namespace GenerCodeSlim\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Container\Container;
-use Illuminate\Foundation\Console\Kernel;
-use Carbon\CarbonInterval;
+
 use Closure;
 use DateTimeInterface;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Console\Command;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel as KernelContract;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -26,7 +24,7 @@ use Throwable;
 
 class ConsoleKernel implements KernelContract
 {
-    protected Container $app;
+ 
     /**
      * Define the application's command schedule.
      *
