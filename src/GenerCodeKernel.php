@@ -39,15 +39,15 @@ class GenerCodeKernel
         };
         
 
-        $configs = require($config_file);
+        $configs = require($this->config_file);
         foreach($configs as $key=>$val) {
             $app['config']->set($key, $val);
         }
     }
 
 
-    public function load() {
-        $container = new GenerCodeApplication();
+    public function load($base_path = null) {
+        $container = new GenerCodeApplication($base_path);
 
         $this->loadEnvironment();
         $this->loadConfigs($container);

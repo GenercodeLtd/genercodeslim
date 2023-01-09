@@ -3,12 +3,17 @@ namespace GenerCodeSlim;
 
 use Illuminate\Container\Container;
 use Illuminate\Events\EventServiceProvider;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 
 
-class GenerCodeApplication {
+class GenerCodeApplication extends Container {
 
     protected $basePath;
+    protected $appPath;
 
     protected $serviceProviders = [
         \Illuminate\Database\DatabaseServiceProvider::class,
@@ -21,6 +26,7 @@ class GenerCodeApplication {
         \Illuminate\Queue\QueueServiceProvider::class
         ];
 
+    protected $loadedProviders;
   
     protected $booted = false;
 
@@ -145,6 +151,7 @@ class GenerCodeApplication {
             }
         }
 
+        $this->loadedProviders[] = $provider;
 
         // If the application has already booted, we will call this boot method on
         // the provider class so it has an opportunity to do its boot logic and
@@ -171,6 +178,16 @@ class GenerCodeApplication {
     {
         return array_values($this->getProviders($provider))[0] ?? null;
     }
+
+    public function getProviders($provider)
+    {
+        $name = is_string($provider) ? $provider : get_class($provider);
+
+        return Arr::where($this->serviceProviders, function ($value) use ($name) {
+            return $value instanceof $name;
+        });
+    }
+
 
     protected function bootProvider(ServiceProvider $provider)
     {
@@ -206,7 +223,7 @@ class GenerCodeApplication {
         // finished. This is useful when ordering the boot-up processes we run.
         //$this->fireAppCallbacks($this->bootingCallbacks);
 
-        array_walk($this->serviceProviders, function ($p) {
+        array_walk($this->loadedProviders, function ($p) {
             $this->bootProvider($p);
         });
 
@@ -215,4 +232,58 @@ class GenerCodeApplication {
         //$this->fireAppCallbacks($this->bootedCallbacks);
     }
 
+
+    public function basePath($path = '')
+    {
+        return $this->basePath.($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+    }
+
+
+    public function setBasePath($basePath)
+    {
+        $this->basePath = rtrim($basePath, '\/');
+
+        $this->bindPathsInContainer();
+
+        return $this;
+    }
+
+
+    /**
+     * Get the path to the application "app" directory.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    public function path($path = '')
+    {
+        $appPath = $this->appPath ?: $this->basePath.DIRECTORY_SEPARATOR.'api';
+
+        return $appPath.($path != '' ? DIRECTORY_SEPARATOR.$path : '');
+    }
+
+    /**
+     * Bind all of the application paths in the container.
+     *
+     * @return void
+     */
+    protected function bindPathsInContainer()
+    {
+        $this->instance('path', $this->path());
+        $this->instance('path.base', $this->basePath());
+        /*$this->instance('path.config', $this->configPath());
+        $this->instance('path.public', $this->publicPath());
+        $this->instance('path.storage', $this->storagePath());
+        $this->instance('path.database', $this->databasePath());
+        $this->instance('path.resources', $this->resourcePath());
+        $this->instance('path.bootstrap', $this->bootstrapPath());
+
+        $this->useLangPath(value(function () {
+            if (is_dir($directory = $this->resourcePath('lang'))) {
+                return $directory;
+            }
+
+            return $this->basePath('lang');
+        }));*/
+    }
 }
