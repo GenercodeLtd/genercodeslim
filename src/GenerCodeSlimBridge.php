@@ -23,16 +23,20 @@ class GenerCodeSlimBridge
     protected $request;
     protected $middleware = [];
 
-    public function __construct() {
-        $kernel = new GenerCodeKernel();
-        $container = $kernel->buildContainer();
+    public function __construct($env_dir, $config_file = null) {
+        $container = new GenerCodeApplication();
 
+        ConfigsRegistration::loadEnvironment($env_dir);
+        if (!$config_file) $config_file = $env_dir . "/configs.php";
+        ConfigsRegistration::loadConfigs($container, $config_file);
+        
+        $container->boot();
+     
         AppFactory::setContainer($container);
         $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
         $this->app = AppFactory::create($factory);
 
-        $container->instance(App::class, $this->app);
-
+     
         $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
             $factory, // ServerRequestFactory
             $factory, // UriFactory
@@ -46,35 +50,7 @@ class GenerCodeSlimBridge
 
         $irequest = $converter->convertLaravelRequest($this->request);
         $container->instance("illu_request", $irequest);
-
-        //$httpFoundationFactory = new GenerCodeSymfonyBridge();
-        //$http_request = $httpFoundationFactory->createRequest($this->request);
-        //$container->instance("request", $http_request);
-
-        /*$container->instance(Request::class, $this->request);
-        $container->singleton(\Symfony\Component\HttpFoundation\Request::class, function($app) {
-            return $app->get(Request::class);
-        });
-
-        
-        
-        $container->singleton(\Illuminate\Http\Request::class, function($app) {
-            return $app->get("request");
-        });
-        
-        */
-        $container->instance(\Illuminate\Contracts\Container\Container::class, $container);
     
-        //set cookies same site
-        $container["cookie"]->setDefaultPathAndDomain("/", null, true, "none");
-    }
-
-    static function setEnvDir($dir) {
-        GenerCodeKernel::setEnvDir($dir);
-    }
-
-    static function setConfigDir($dir) {
-        GenerCodeKernel::setConfigDir($dir);
     }
 
 
@@ -148,7 +124,7 @@ class GenerCodeSlimBridge
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
 
-        $this->app->add(new GenerCodeSlimCors(
+        $this->app->add(new Middleware\GenerCodeSlimCors(
             $container
         ));
     }
