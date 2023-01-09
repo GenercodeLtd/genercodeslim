@@ -7,9 +7,8 @@ use Symfony\Component\Console\Application;
 $composer_autoload = dirname(__DIR__) . "/vendor/autoload.php";
 require_once($composer_autoload);
 
-\GenerCodeSlim\GenerCodeKernel::setEnvDir(dirname(__DIR__, 2));
-$kernel = new \GenerCodeSlim\GenerCodeKernel();
-$container = $kernel->buildContainer();
+$kernel = new \GenerCodeSlim\GenerCodeKernel(dirname(__DIR__, 2));
+$container = $kernel->load();
 
 
 $app = new Application();

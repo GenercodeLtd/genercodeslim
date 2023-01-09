@@ -16,7 +16,7 @@ use Slim\Factory\ServerRequestCreatorFactory;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class GenerCodeSlimBridge
+class GenerCodeSlimBridge extends GenerCodeKernel
 {
 
     protected $app;
@@ -24,13 +24,8 @@ class GenerCodeSlimBridge
     protected $middleware = [];
 
     public function __construct($env_dir, $config_file = null) {
-        $container = new GenerCodeApplication();
-
-        ConfigsRegistration::loadEnvironment($env_dir);
-        if (!$config_file) $config_file = $env_dir . "/configs.php";
-        ConfigsRegistration::loadConfigs($container, $config_file);
-        
-        $container->boot();
+        parent::__construct($env_dir, $config_file);
+        $container = parent::load();
      
         AppFactory::setContainer($container);
         $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
