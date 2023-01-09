@@ -289,6 +289,7 @@ class GenerCodeSlimBridge
             $group->get("/{name}/{id}", function($request, $response, $args) {
                 $audit = $this->get(Controllers\AuditController::class);
                 $response->getBody()->write(json_encode($audit->getAll($args["name"], $args["id"])));
+                return $response;
             });
 
         });
