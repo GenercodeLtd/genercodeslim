@@ -484,10 +484,4 @@ class ConsoleKernel implements KernelContract
 
 
 
-    protected function registerCommand($cls) {
-        $obj = new $cls($this->app);
-        $app->addCommand($obj);
-    }
-
-
 }
