@@ -286,9 +286,9 @@ class GenerCodeSlimBridge
                 return $response;
             });
 
-            $group->get("/history/{name}", function($request, $response, $args) {
+            $group->get("/{name}/{id}", function($request, $response, $args) {
                 $audit = $this->get(Controllers\AuditController::class);
-                $response->getBody()->write(json_encode($audit->getAll()));
+                $response->getBody()->write(json_encode($audit->getAll($args["name"], $args["id"])));
             });
 
         });
