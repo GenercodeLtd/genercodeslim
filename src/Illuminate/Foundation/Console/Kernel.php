@@ -1,14 +1,13 @@
 <?php
 
-namespace GenerCodeSlim\Console;
+namespace GenerCodeSlim\Foundation\Console;
 
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Container\Container;
-
+use Carbon\CarbonInterval;
 use Closure;
 use DateTimeInterface;
 use Illuminate\Console\Application as Artisan;
 use Illuminate\Console\Command;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Console\Kernel as KernelContract;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher;
@@ -22,17 +21,8 @@ use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
-class ConsoleKernel implements KernelContract
+class Kernel implements KernelContract
 {
- 
-    /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
-
-
     use InteractsWithTime;
 
     /**
@@ -90,13 +80,12 @@ class ConsoleKernel implements KernelContract
      * @var string[]
      */
     protected $bootstrappers = [
-        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
-        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
-        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
-        \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
-        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
-        \Illuminate\Foundation\Bootstrap\BootProviders::class,
+        \GenerCodeSlim\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        \GenerCodeSlim\Foundation\Bootstrap\LoadConfiguration::class,
+        \GenerCodeSlim\Foundation\Bootstrap\HandleExceptions::class,
+        \GenerCodeSlim\Foundation\Bootstrap\SetRequestForConsole::class,
+        \GenerCodeSlim\Foundation\Bootstrap\RegisterProviders::class,
+        \GenerCodeSlim\Foundation\Bootstrap\BootProviders::class,
     ];
 
     /**
@@ -160,10 +149,13 @@ class ConsoleKernel implements KernelContract
                 $this->bootstrapWithoutBootingProviders();
             }
 
+            echo "\nGot providers";
             $this->bootstrap();
-
+            echo "\nGot bootstrap";
+            exit;
             return $this->getArtisan()->run($input, $output);
         } catch (Throwable $e) {
+            echo $e->getMessage() . " " . $e->getFile();
             $this->reportException($e);
 
             $this->renderException($output, $e);
@@ -258,12 +250,6 @@ class ConsoleKernel implements KernelContract
     protected function commands()
     {
         //
-        $this->commands[] = new \GenerCodeCmd\DictionaryCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\DownloadCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\MigrationCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\PublishCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\UploadCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\CdnCommand($this->app);
     }
 
     /**
@@ -399,6 +385,8 @@ class ConsoleKernel implements KernelContract
             $this->app->bootstrapWith($this->bootstrappers());
         }
 
+        echo "Bootstrapped with";
+
         $this->app->loadDeferredProviders();
 
         if (! $this->commandsLoaded) {
@@ -467,8 +455,7 @@ class ConsoleKernel implements KernelContract
      */
     protected function reportException(Throwable $e)
     {
-        $container = $this->app->getLaravel();
-        $container[ExceptionHandler::class]->report($e);
+        $this->app[ExceptionHandler::class]->report($e);
     }
 
     /**
@@ -480,10 +467,6 @@ class ConsoleKernel implements KernelContract
      */
     protected function renderException($output, Throwable $e)
     {
-        $container = $this->app->getLaravel();
-        $container[ExceptionHandler::class]->renderForConsole($output, $e);
+        $this->app[ExceptionHandler::class]->renderForConsole($output, $e);
     }
-
-
-
 }
