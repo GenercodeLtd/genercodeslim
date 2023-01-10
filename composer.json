@@ -28,6 +28,10 @@
         "illuminate/broadcasting": ">=8.83.1",
         "illuminate/cache": ">=8.83.1",
         "illuminate/routing": ">=8.83.1",
+        "illuminate/encryption": ">=8.83.1",
+        "illuminate/mail": ">=8.83.1",
+        "illuminate/notifications": ">=8.83.1",
+        "illuminate/testing": ">=8.83.1",
         "symfony/http-foundation": ">=5.4.16",
         "nyholm/psr7": "^1.5"
     },
