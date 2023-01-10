@@ -1,6 +1,6 @@
 <?php
 
-namespace GenerCodeSlim\Foundation\Console;
+namespace Illuminate\Foundation\Console;
 
 use Carbon\CarbonInterval;
 use Closure;
@@ -80,12 +80,14 @@ class Kernel implements KernelContract
      * @var string[]
      */
     protected $bootstrappers = [
-        \GenerCodeSlim\Foundation\Bootstrap\LoadEnvironmentVariables::class,
-        \GenerCodeSlim\Foundation\Bootstrap\LoadConfiguration::class,
-        \GenerCodeSlim\Foundation\Bootstrap\HandleExceptions::class,
-        \GenerCodeSlim\Foundation\Bootstrap\SetRequestForConsole::class,
-        \GenerCodeSlim\Foundation\Bootstrap\RegisterProviders::class,
-        \GenerCodeSlim\Foundation\Bootstrap\BootProviders::class,
+        \Illuminate\Foundation\Bootstrap\LoadEnvironmentVariables::class,
+        \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+        \Illuminate\Foundation\Bootstrap\HandleExceptions::class,
+        \Illuminate\Foundation\Bootstrap\RegisterFacades::class,
+        \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
+        \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
+        \Illuminate\Foundation\Bootstrap\BootProviders::class,
+        
     ];
 
     /**
@@ -149,13 +151,9 @@ class Kernel implements KernelContract
                 $this->bootstrapWithoutBootingProviders();
             }
 
-            echo "\nGot providers";
             $this->bootstrap();
-            echo "\nGot bootstrap";
-            exit;
             return $this->getArtisan()->run($input, $output);
         } catch (Throwable $e) {
-            echo $e->getMessage() . " " . $e->getFile();
             $this->reportException($e);
 
             $this->renderException($output, $e);
@@ -385,13 +383,10 @@ class Kernel implements KernelContract
             $this->app->bootstrapWith($this->bootstrappers());
         }
 
-        echo "Bootstrapped with";
-
         $this->app->loadDeferredProviders();
 
         if (! $this->commandsLoaded) {
             $this->commands();
-
             $this->commandsLoaded = true;
         }
     }

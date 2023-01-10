@@ -36,7 +36,6 @@ class LoadConfiguration
         $app->instance('config', $config = new Repository($items));
 
         if (! isset($loadedFromCache)) {
-            echo "\nGoing to load config files";
             $this->loadConfigurationFiles($app, $config);
         }
 

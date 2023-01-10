@@ -204,7 +204,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
 
         $this->instance('app', $this);
 
-        $this->instance(Container::class, $this);
+        
         $this->singleton(Mix::class);
 
         $this->singleton(PackageManifest::class, function () {
@@ -223,6 +223,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     {
         $this->register(new EventServiceProvider($this));
         $this->register(new LogServiceProvider($this));
+        $this->register(new RoutingServiceProvider($this));
     }
 
     /**
@@ -236,13 +237,9 @@ class Application extends Container implements ApplicationContract, CachesConfig
         $this->hasBeenBootstrapped = true;
 
         foreach ($bootstrappers as $bootstrapper) {
-            echo "\nBootstrapper " . $bootstrapper;
             $this['events']->dispatch('bootstrapping: '.$bootstrapper, [$this]);
-            echo "\nDispatched events";
             $this->make($bootstrapper)->bootstrap($this);
-            echo "Mak ea make ";
             $this['events']->dispatch('bootstrapped: '.$bootstrapper, [$this]);
-            echo " complete";
         }
     }
 

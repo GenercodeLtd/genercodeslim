@@ -141,6 +141,7 @@ class ProviderRepository
         $manifest = $this->freshManifest($providers);
 
         foreach ($providers as $provider) {
+    
             $instance = $this->createProvider($provider);
 
             // When recompiling the service manifest, we will spin through each of the

@@ -1,6 +1,6 @@
 <?php
 
-namespace GenerCodeSlim\Foundation\Exceptions;
+namespace Illuminate\Foundation\Exceptions;
 
 use Illuminate\Support\Traits\ReflectsClosures;
 use Throwable;

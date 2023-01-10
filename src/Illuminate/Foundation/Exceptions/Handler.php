@@ -1,6 +1,6 @@
 <?php
 
-namespace GenerCodeSlim\Foundation\Exceptions;
+namespace Illuminate\Foundation\Exceptions;
 
 use Closure;
 use Exception;
