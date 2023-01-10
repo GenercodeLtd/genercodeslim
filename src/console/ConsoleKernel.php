@@ -21,6 +21,7 @@ class ConsoleKernel extends \Illuminate\Foundation\Console\Kernel
         $this->commands[] = new \GenerCodeCmd\PublishCommand($this->app);
         $this->commands[] = new \GenerCodeCmd\UploadCommand($this->app);
         $this->commands[] = new \GenerCodeCmd\CdnCommand($this->app);
+        
     }
 
 }
