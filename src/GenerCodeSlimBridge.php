@@ -16,20 +16,19 @@ use Slim\Factory\ServerRequestCreatorFactory;
 use Psr\Http\Message\ServerRequestInterface;
 
 
-class GenerCodeSlimBridge extends GenerCodeKernel
+class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 {
 
-    protected $app;
+    protected $slim;
     protected $request;
     protected $middleware = [];
 
-    public function __construct($env_dir, $config_file = null) {
-        parent::__construct($env_dir, $config_file);
-        $container = parent::load();
+    public function __construct(Application $app, Router $router) {
+        parent::__construct($app, $router);
      
-        AppFactory::setContainer($container);
+        AppFactory::setContainer($app);
         $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
-        $this->app = AppFactory::create($factory);
+        $this->slim = AppFactory::create($factory);
 
      
         $creator = new \Nyholm\Psr7Server\ServerRequestCreator(
@@ -44,13 +43,12 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         $converter = new GenerCodeConverter();
 
         $irequest = $converter->convertLaravelRequest($this->request);
-        $container->instance("illu_request", $irequest);
-    
+        $aopp->instance("illu_request", $irequest);
     }
 
 
     public function __call($method, $args) {
-        return call_user_func_array([$this->app, $method], $args);
+        return call_user_func_array([$this->slim, $method], $args);
     }
 
     public function addMiddleware($middleware) {
@@ -60,28 +58,28 @@ class GenerCodeSlimBridge extends GenerCodeKernel
 
     public function initMiddleware()
     {
-        $this->app->addBodyParsingMiddleware();
-        $this->app->addRoutingMiddleware();
+        $this->slim->addBodyParsingMiddleware();
+        $this->slim->addRoutingMiddleware();
 
         foreach($this->middleware as $mware) {
-            $this->app->add($mware);
+            $this->slim->add($mware);
         }
 
 
-        $container = $this->app->getContainer();
+        $container = $this->app;
 
-        $this->app->add(new Middleware\UserMiddleware(
+        $this->slim->add(new Middleware\UserMiddleware(
             $container
         ));
 
-        $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Session\Middleware\StartSession::class)));
-        $this->app->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
-        $this->app->add(new Middleware\JsonContent());
+        $this->slim->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Session\Middleware\StartSession::class)));
+        $this->slim->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class)));
+        $this->slim->add(new Middleware\JsonContent());
       //  $this->app->add($container->make(\App\Http\Middleware\VerifyCsrfToken::class));
      
-        $errorMiddleware = $this->app->addErrorMiddleware(true, true, true);
+        $errorMiddleware = $this->slim->addErrorMiddleware(true, true, true);
 
-        $app = $this->app;
+        $app = $this->slim;
         $errFunc = function (
             Request $request,
             \Throwable $exception,
@@ -127,11 +125,11 @@ class GenerCodeSlimBridge extends GenerCodeKernel
 
     public function addRoutes()
     {
-        $this->app->options('/{routes:.+}', function ($request, $response, $args) {
+        $this->slim->options('/{routes:.+}', function ($request, $response, $args) {
             return $response;
         });
 
-        $this->app->map(['POST', 'PUT', 'DELETE'], '/data/{model}', function (Request $request, Response $response, $args) {
+        $this->slim->map(['POST', 'PUT', 'DELETE'], '/data/{model}', function (Request $request, Response $response, $args) {
             $modelController = $this->get(Controllers\ModelController::class);
             $method = $request->getMethod();
             if ($method == "POST") {
@@ -146,7 +144,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->post('/bulk/{model}', function (Request $request, Response $response, $args) {
+        $this->slim->post('/bulk/{model}', function (Request $request, Response $response, $args) {
             $modelController = $this->get(Controllers\ModelController::class);
             $results = $modelController->importFromCSV($args["model"], new Fluent($request->getParsedBody()));
             $response->getBody()->write(json_encode($results));
@@ -154,7 +152,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->put('/data/{model}/resort', function (Request $request, Response $response, $args) {
+        $this->slim->put('/data/{model}/resort', function (Request $request, Response $response, $args) {
             $modelController = $this->get(Controllers\ModelController::class);
             $results = $modelController->resort($args["model"], new Fluent($request->getParsedBody()));
             $response->getBody()->write(json_encode($results));
@@ -163,7 +161,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
 
 
 
-        $this->app->get('/data/{model}[/{state}]', function (Request $request, Response $response, $args) {
+        $this->slim->get('/data/{model}[/{state}]', function (Request $request, Response $response, $args) {
             $state = (isset($args["state"])) ? $args["state"] : "get";
             $repoController = $this->get(Controllers\RepositoryController::class);
             if ($state == "active") {
@@ -182,7 +180,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->get('/count/{model}', function (Request $request, Response $response, $args) {
+        $this->slim->get('/count/{model}', function (Request $request, Response $response, $args) {
             $name = $args['model'];
             $repoController = $this->get(Controllers\RepositoryController::class);
             $results = $repoController->count($args["model"], new Fluent($request->getQueryParams()));
@@ -192,14 +190,14 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
+        $this->slim->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
             echo $data;
             exit;
         });
 
-        $this->app->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
+        $this->slim->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
             if (!$assetController->exists($args["model"], $args["field"], $args["id"])) {
                 throw new \Exception("Asset doesn't exist");
@@ -208,7 +206,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->post("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
+        $this->slim->post("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
@@ -217,7 +215,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
+        $this->slim->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->removeAsset($args["model"], $args["field"], $args["id"]);
             $response->getBody()->write(json_encode($data));
@@ -226,7 +224,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
+        $this->slim->get("/reference/{model}/{field}[/{id}]", function ($request, $response, $args) {
             $refController = $this->get(Controllers\ReferenceController::class);
             $params = new Fluent($request->getQueryParams());
             $id = (isset($args["id"])) ? $args["id"] : 0;
@@ -238,7 +236,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
 
 
 
-        $this->app->group("/audit", function(RouteCollectorProxy $group) {
+        $this->slim->group("/audit", function(RouteCollectorProxy $group) {
           
             $group->get("/history/{name}/{id}", function($request, $response, $args) {
                 $params = $request->getQueryParams();
@@ -266,7 +264,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->group("/user", function (RouteCollectorProxy $group) {
+        $this->slim->group("/user", function (RouteCollectorProxy $group) {
             $group->get("/dictionary", function ($request, $response, $args) {
                 $profile = $this->get("profile");
                 $dict = file_get_contents($this->config->get("dictionary.root") . $profile->name . ".json");
@@ -342,7 +340,7 @@ class GenerCodeSlimBridge extends GenerCodeKernel
         });
 
 
-        $this->app->group("/dispatch", function (RouteCollectorProxy $group) {
+        $this->slim->group("/dispatch", function (RouteCollectorProxy $group) {
             $group->get("/status/{id}", function (Request $request, Response $response, $args) {
                 $repoController = $this->get(Controllers\RepositoryController::class);
                 $data = $repoController->getActive("queue", new Fluent(["__fields"=>["progress"], "--id"=>$args["id"]]));
@@ -364,6 +362,6 @@ class GenerCodeSlimBridge extends GenerCodeKernel
 
 
     function run() {
-        $this->app->run($this->request);
+        $this->slim->run($this->request);
     }
 }
