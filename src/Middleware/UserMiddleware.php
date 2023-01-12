@@ -17,10 +17,10 @@ class UserMiddleware {
 
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
 
-        if (!$this->app->config->has("factory")) {
+        if (!$this->app->config->has("app.factory")) {
             throw new \Exception("Factory needs to be set in the configs");
         }
-        $factory_name = $this->app->config->get("factory");
+        $factory_name = $this->app->config->get("app.factory");
         $factory = new $factory_name();
 
         $irequest = $this->app["request"];

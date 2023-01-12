@@ -204,7 +204,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
 
         $this->instance('app', $this);
 
-        
+        $this->instance(Container::class, $this);
         $this->singleton(Mix::class);
 
         $this->singleton(PackageManifest::class, function () {
@@ -238,7 +238,9 @@ class Application extends Container implements ApplicationContract, CachesConfig
 
         foreach ($bootstrappers as $bootstrapper) {
             $this['events']->dispatch('bootstrapping: '.$bootstrapper, [$this]);
+
             $this->make($bootstrapper)->bootstrap($this);
+
             $this['events']->dispatch('bootstrapped: '.$bootstrapper, [$this]);
         }
     }
@@ -839,7 +841,8 @@ class Application extends Container implements ApplicationContract, CachesConfig
     public function make($abstract, array $parameters = [])
     {
         $this->loadDeferredProviderIfNeeded($abstract = $this->getAlias($abstract));
-        return  parent::make($abstract, $parameters);
+
+        return parent::make($abstract, $parameters);
     }
 
     /**

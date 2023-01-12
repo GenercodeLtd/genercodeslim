@@ -87,7 +87,6 @@ class Kernel implements KernelContract
         \Illuminate\Foundation\Bootstrap\SetRequestForConsole::class,
         \Illuminate\Foundation\Bootstrap\RegisterProviders::class,
         \Illuminate\Foundation\Bootstrap\BootProviders::class,
-        
     ];
 
     /**
@@ -152,6 +151,7 @@ class Kernel implements KernelContract
             }
 
             $this->bootstrap();
+
             return $this->getArtisan()->run($input, $output);
         } catch (Throwable $e) {
             $this->reportException($e);
@@ -387,6 +387,7 @@ class Kernel implements KernelContract
 
         if (! $this->commandsLoaded) {
             $this->commands();
+
             $this->commandsLoaded = true;
         }
     }

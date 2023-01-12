@@ -14,6 +14,8 @@ use \GenerCodeOrm\Http\Controllers as Controllers;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Routing\Router;
 
 
 class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
@@ -25,6 +27,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
     public function __construct(Application $app, Router $router) {
         parent::__construct($app, $router);
+        parent::bootstrap();
      
         AppFactory::setContainer($app);
         $factory = new \Nyholm\Psr7\Factory\Psr17Factory();
@@ -43,7 +46,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
         $converter = new GenerCodeConverter();
 
         $irequest = $converter->convertLaravelRequest($this->request);
-        $aopp->instance("illu_request", $irequest);
+        $app->instance("illu_request", $irequest);
     }
 
 
@@ -117,7 +120,9 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
         };
         $errorMiddleware->setDefaultErrorHandler($errFunc);
 
-        $this->app->add(new Middleware\GenerCodeSlimCors(
+        //$this->slim->add(new Middleware\LaravelPsr15Wrapper($container, $container->make(\Fruitcake\Cors\HandleCors::class)));
+
+        $this->slim->add(new Middleware\GenerCodeSlimCors(
             $container
         ));
     }
@@ -267,7 +272,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
         $this->slim->group("/user", function (RouteCollectorProxy $group) {
             $group->get("/dictionary", function ($request, $response, $args) {
                 $profile = $this->get("profile");
-                $dict = file_get_contents($this->config->get("dictionary.root") . $profile->name . ".json");
+                $dict = file_get_contents($this->basePath() . "/api/Dictionary/" . $profile->name . ".json");
                 $response->getBody()->write($dict);
                 return $response
                 ->withHeader('Content-Type', 'application/json');

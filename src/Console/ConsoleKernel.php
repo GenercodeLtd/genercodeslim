@@ -15,11 +15,11 @@ class ConsoleKernel extends \Illuminate\Foundation\Console\Kernel
     protected function commands()
     {
         //
-        $this->commands[] = new \GenerCodeCmd\DictionaryCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\DownloadCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\PublishCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\UploadCommand($this->app);
-        $this->commands[] = new \GenerCodeCmd\CdnCommand($this->app);
+        $this->commands[] = \GenerCodeCmd\DictionaryCommand::class;
+        $this->commands[] = \GenerCodeCmd\DownloadCommand::class;
+        $this->commands[] = \GenerCodeCmd\PublishCommand::class;
+        $this->commands[] = \GenerCodeCmd\UploadCommand::class;
+        $this->commands[] = \GenerCodeCmd\CdnCommand::class;
         
     }
 

@@ -45,8 +45,6 @@ use Throwable;
 
 class Handler implements ExceptionHandlerContract
 {
-
-
     use ReflectsClosures;
 
     /**
@@ -134,7 +132,6 @@ class Handler implements ExceptionHandlerContract
         $this->register();
     }
 
-    
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -142,9 +139,7 @@ class Handler implements ExceptionHandlerContract
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        //
     }
 
     /**
@@ -770,4 +765,3 @@ class Handler implements ExceptionHandlerContract
         return $e instanceof HttpExceptionInterface;
     }
 }
-

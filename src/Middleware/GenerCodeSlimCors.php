@@ -28,10 +28,15 @@ class GenerCodeSlimCors
 
 
     public function __invoke(Request $request, RequestHandlerInterface $handler) : Response {
-         $response = $handler->handle($request);
+        $origin = 0;
+        
+        if (isset($_SERVER['HTTP_ORIGIN']) AND $_SERVER['HTTP_ORIGIN']) $origin = $_SERVER['HTTP_ORIGIN'];
+        else if (isset($_SERVER['HTTP_REFERER'])) $origin = $_SERVER['HTTP_REFERER'];
+        
+        $response = $handler->handle($request);
         return $response
-        ->withHeader('Access-Control-Allow-Origin', $this->app->config->get("cors.origin"))
-        ->withHeader("Access-Control-Allow-Headers", implode(", ", $this->app->config->get("cors.headers")))
+        ->withHeader('Access-Control-Allow-Origin', $origin)
+        ->withHeader("Access-Control-Allow-Headers", implode(", ", config("cors.headers")))
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
         ->withHeader('Access-Control-Allow-Credentials', 'true');
     }
