@@ -197,14 +197,14 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
         $this->slim->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
-            $data = $assetController->getAsset($args["model"], $args["field"], $args["id"]);
+            $data = $assetController->getAsset($args["model"], $args["field"], (int) $args["id"]);
             echo $data;
             exit;
         });
 
         $this->slim->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
-            if (!$assetController->exists($args["model"], $args["field"], $args["id"])) {
+            if (!$assetController->exists($args["model"], $args["field"], (int) $args["id"])) {
                 throw new \Exception("Asset doesn't exist");
             }
             return $response;
@@ -213,7 +213,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
         $this->slim->post("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
-            $data = $assetController->patchAsset($args["model"], $args["field"], $args["id"]);
+            $data = $assetController->patchAsset($args["model"], $args["field"], (int) $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
             ->withHeader('Content-Type', 'application/json');
@@ -222,7 +222,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
         $this->slim->delete("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
-            $data = $assetController->removeAsset($args["model"], $args["field"], $args["id"]);
+            $data = $assetController->removeAsset($args["model"], $args["field"], (int) $args["id"]);
             $response->getBody()->write(json_encode($data));
             return $response
             ->withHeader('Content-Type', 'application/json');
