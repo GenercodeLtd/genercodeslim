@@ -272,7 +272,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
             $group->get("/{name}", function($request, $response, $args) {
                 $report = $this->get(Controllers\ReportsController::class);
-                $data = $report->get($args["name"], $request->getQueryParams());
+                $data = $report->get($args["name"], new Fluent($request->getQueryParams()));
                 $response->getBody()->write(json_encode($data));
                 return $response;
             });
@@ -280,7 +280,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
             $group->get("/{name}/{field}/{agg}", function($request, $response, $args) {
                 $report = $this->get(Controllers\ReportsController::class);
-                $data = $report->getAggregate($args["name"], $args["field"], $args["agg"], $request->getQueryParams());
+                $data = $report->getAggregate($args["name"], $args["field"], $args["agg"], new Fluent($request->getQueryParams()));
                 $response->getBody()->write(json_encode($data));
                 return $response;
             });
