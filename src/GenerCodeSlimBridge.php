@@ -268,6 +268,25 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
         });
 
+        $this->slim->group("/reports", function(RouteCollectorProxy $group) {
+
+            $group->get("/{name}", function($request, $response, $args) {
+                $report = $this->get(Controllers\ReportController::class);
+                $data = $audit->get($args["name"], $request->getQueryParams());
+                $response->getBody()->write(json_encode($data));
+                return $response;
+            });
+
+
+            $group->get("/{name}/{field}/{agg}", function($request, $response, $args) {
+                $report = $this->get(Controllers\ReportController::class);
+                $data = $audit->getAggregate($args["name"], $args["field"], $args["agg"], $request->getQueryParams());
+                $response->getBody()->write(json_encode($data));
+                return $response;
+            });
+
+        });
+
 
         $this->slim->group("/user", function (RouteCollectorProxy $group) {
             $group->get("/dictionary", function ($request, $response, $args) {
