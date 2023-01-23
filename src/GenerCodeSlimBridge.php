@@ -321,7 +321,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
             $group->post('/register/{name}', function(Request $request, Response $response, $args) {
                 $profileController = $this->get(Controllers\ProfileController::class);
-                $obj = $profileController->create($args["name"], new Fluent($request->getParsedBody()));
+                $obj = $profileController->create($args["name"], $request->getParsedBody());
                 $response->getBody()->write(json_encode($obj));
                 return $response;
             });
