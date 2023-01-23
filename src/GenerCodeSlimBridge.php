@@ -184,9 +184,9 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
             return $response;
         });
 
-        $this->slim->get('/check/[{model}/{id}]', function(Request $request, Response $response, $args) {
+        $this->slim->get('/check[/{model}/{id}]', function(Request $request, Response $response, $args) {
             $model = (isset($args["model"])) ? $args["model"] : null;
-            $parent_id = (isset($args["id"])) ? $args["id"] : null;
+            $parent_id = (isset($args["id"])) ? $args["id"] : 0;
             $validator = new \GenerCodeOrm\DataValidator();
             $checks = $validator->validate($model, $parent_id);
             $response->getBody()->write(json_encode($results));

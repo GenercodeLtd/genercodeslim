@@ -9,7 +9,7 @@ class JsonContent
     {
         $response = $handler->handle($request);
         if (!$response->hasHeader("Content-Type")) {
-            $response->withHeader('Content-Type', 'application/json');
+            $response = $response->withHeader('Content-Type', 'application/json');
         }
         return $response;
     }
