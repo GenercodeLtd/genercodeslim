@@ -319,6 +319,13 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
                 return $converter->convertPsrResponse($response);
             });
 
+            $group->post('/register/{name}', function(Request $request, Response $response, $args) {
+                $profileController = $this->get(Controllers\ProfileController::class);
+                $obj = $profileController->create($args["name"], new Fluent($request->getParsedBody()));
+                $response->getBody()->write(json_encode($obj));
+                return $response;
+            });
+
             $group->post('/login/token/{name}', function (Request $request, Response $response, $args) {
                 $params = new Fluent($request->getParsedBody());
                 $tokenHandler = $this->make(TokenHandler::class);

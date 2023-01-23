@@ -8,6 +8,9 @@ class JsonContent
     public function __invoke($request, $handler)
     {
         $response = $handler->handle($request);
-        return $response->withHeader('Content-Type', 'application/json');
+        if (!$response->hasHeader("Content-Type")) {
+            $response->withHeader('Content-Type', 'application/json');
+        }
+        return $response;
     }
 }
