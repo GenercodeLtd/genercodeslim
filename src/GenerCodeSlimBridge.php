@@ -189,7 +189,7 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
             $parent_id = (isset($args["id"])) ? $args["id"] : 0;
             $validator = new Controllers\DataController();
             $checks = $validator->validate($model, $parent_id);
-            $response->getBody()->write(json_encode($results));
+            $response->getBody()->write(json_encode($checks));
             return $response;
         });
 
