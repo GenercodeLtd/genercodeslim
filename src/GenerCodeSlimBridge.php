@@ -382,8 +382,8 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
         $this->slim->group("/dispatch", function (RouteCollectorProxy $group) {
             $group->get("/status/{id}", function (Request $request, Response $response, $args) {
-                $repoController = $this->get(Controllers\RepositoryController::class);
-                $data = $repoController->getActive("queue", new Fluent(["__fields"=>["progress"], "--id"=>$args["id"]]));
+                $repoController = $this->get(Controllers\QueueController::class);
+                $data = $repoController->status($args["id"]);
                 $response->getBody()->write(json_encode($data));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
@@ -391,8 +391,8 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
 
 
             $group->delete("/remove/{id}", function (Request $request, Response $response, $args) {
-                $modelController = $this->get(Controllers\ModelController::class);
-                $results = $modelController->delete("queue", new Fluent(["--id"=>$args["id"]]));
+                $modelController = $this->get(Controllers\QueueController::class);
+                $results = $modelController->delete($args["id"]);
                 $response->getBody()->write(json_encode($results));
                 return $response
                 ->withHeader('Content-Type', 'application/json');
