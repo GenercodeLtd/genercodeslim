@@ -275,6 +275,12 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
                 return $response;
             });
 
+            $group->get("/deleted-since/{name}", function($request, $response, $args) {
+                $audit = $this->get(Controllers\AuditController::class);
+                $params = $request->getQueryParams();
+                $response->getBody()->write(json_encode($audit->getAllDeletedSince($args["name"], $params["date"])));
+            });
+
         });
 
         $this->slim->group("/reports", function(RouteCollectorProxy $group) {
