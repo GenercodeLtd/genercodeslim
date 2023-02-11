@@ -207,8 +207,8 @@ class GenerCodeSlimBridge extends \Illuminate\Foundation\Http\Kernel
         $this->slim->get("/asset/{model}/{field}/{id}", function ($request, $response, $args) {
             $assetController = $this->get(Controllers\AssetController::class);
             $data = $assetController->getAsset($args["model"], $args["field"], (int) $args["id"]);
-            echo $data;
-            exit;
+            $response->getBody()->write($data["data"]);
+            return $response->withHeader("Content-Type", $data["type"]);
         });
 
         $this->slim->get("/asset/exists/{model}/{field}/{id}", function ($request, $response, $args) {
